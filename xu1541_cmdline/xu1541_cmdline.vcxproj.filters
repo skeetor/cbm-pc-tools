@@ -19,15 +19,36 @@
     <Filter Include="Header Files\lib\xu1541">
       <UniqueIdentifier>{9ffa8263-1acd-479c-984b-9049544197b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\lib">
+      <UniqueIdentifier>{e71fc5e4-c29b-487d-b2ef-2d347eeccd4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\lib\xu1541">
+      <UniqueIdentifier>{645e85fa-abfe-4d5d-b930-a3b7e5792c8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\lib\usb">
+      <UniqueIdentifier>{c1a95a3d-3258-4c7e-8f58-01d4d8f8632d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\lib\usb">
+      <UniqueIdentifier>{c14b0c0a-5e18-4daa-95c4-5de0c00e2667}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\xu1541\xu1541.cpp">
+      <Filter>Source Files\lib\xu1541</Filter>
+    </ClCompile>
+    <ClCompile Include="src\usb\usb.cpp">
+      <Filter>Source Files\lib\usb</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\xu1541\xu1541.h">
       <Filter>Header Files\lib\xu1541</Filter>
+    </ClInclude>
+    <ClInclude Include="include\usb\usb.h">
+      <Filter>Header Files\lib\usb</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

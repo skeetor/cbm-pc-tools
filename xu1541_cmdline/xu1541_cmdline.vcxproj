@@ -20,8 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\usb\usb.cpp" />
+    <ClCompile Include="src\xu1541\xu1541.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\usb\usb.h" />
     <ClInclude Include="include\xu1541\xu1541.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
