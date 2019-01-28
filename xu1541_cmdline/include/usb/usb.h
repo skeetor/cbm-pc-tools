@@ -6,6 +6,8 @@ class USB
 public:
 	USB(void);
 	virtual ~USB(void);
+
+	void enumerateDevices(void);
 };
 
 #endif // _USB_H
