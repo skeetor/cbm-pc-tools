@@ -13,42 +13,42 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\lib">
-      <UniqueIdentifier>{06329e9b-8fb0-433a-bebe-dcb00c5079eb}</UniqueIdentifier>
+    <Filter Include="Source Files\xu1541">
+      <UniqueIdentifier>{208ddee3-8014-4427-9273-93d2cc130684}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\lib\xu1541">
-      <UniqueIdentifier>{9ffa8263-1acd-479c-984b-9049544197b0}</UniqueIdentifier>
+    <Filter Include="Source Files\usb">
+      <UniqueIdentifier>{f3b92841-1718-4992-bdf2-5b30179bceb5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\lib">
-      <UniqueIdentifier>{e71fc5e4-c29b-487d-b2ef-2d347eeccd4f}</UniqueIdentifier>
+    <Filter Include="Header Files\xu1541">
+      <UniqueIdentifier>{0594fae8-f948-4039-9a54-1c8b5016acbc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\lib\xu1541">
-      <UniqueIdentifier>{645e85fa-abfe-4d5d-b930-a3b7e5792c8c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\lib\usb">
-      <UniqueIdentifier>{c1a95a3d-3258-4c7e-8f58-01d4d8f8632d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\lib\usb">
-      <UniqueIdentifier>{c14b0c0a-5e18-4daa-95c4-5de0c00e2667}</UniqueIdentifier>
+    <Filter Include="Header Files\usb">
+      <UniqueIdentifier>{a4301bc7-c020-44f4-8414-8a94d14ce58f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\xu1541\xu1541.cpp">
-      <Filter>Source Files\lib\xu1541</Filter>
+      <Filter>Source Files\xu1541</Filter>
     </ClCompile>
     <ClCompile Include="src\usb\usb.cpp">
-      <Filter>Source Files\lib\usb</Filter>
+      <Filter>Source Files\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dllmain.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\xu1541\xu1541.h">
-      <Filter>Header Files\lib\xu1541</Filter>
-    </ClInclude>
     <ClInclude Include="include\usb\usb.h">
-      <Filter>Header Files\lib\usb</Filter>
+      <Filter>Header Files\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="include\usb\WinUSBWrappers.h">
+      <Filter>Header Files\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xu1541\xu1541.h">
+      <Filter>Header Files\xu1541</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dllheader.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

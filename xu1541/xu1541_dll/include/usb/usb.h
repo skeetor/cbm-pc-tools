@@ -4,10 +4,12 @@
 #include <vector>
 #include <string>
 
+#include "dllheader.h"
+
 namespace usb
 {
 
-class USB
+class USB_API USB
 {
 public:
 	USB(void);
