@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\xu1541">
+      <UniqueIdentifier>{208ddee3-8014-4427-9273-93d2cc130684}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\usb">
+      <UniqueIdentifier>{f3b92841-1718-4992-bdf2-5b30179bceb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\xu1541">
+      <UniqueIdentifier>{0594fae8-f948-4039-9a54-1c8b5016acbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\usb">
+      <UniqueIdentifier>{a4301bc7-c020-44f4-8414-8a94d14ce58f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\xu1541\xu1541.cpp">
+      <Filter>Source Files\xu1541</Filter>
+    </ClCompile>
+    <ClCompile Include="src\usb\usb.cpp">
+      <Filter>Source Files\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\usb\usb.h">
+      <Filter>Header Files\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="include\usb\WinUSBWrappers.h">
+      <Filter>Header Files\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xu1541\xu1541.h">
+      <Filter>Header Files\xu1541</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dllheader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
