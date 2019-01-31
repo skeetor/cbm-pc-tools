@@ -3,3 +3,5 @@
 **/bin/*
 **/build/*
 **/packages/*
+**/x64/*
+**/Win32/*
