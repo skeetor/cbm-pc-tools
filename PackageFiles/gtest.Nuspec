@@ -9,8 +9,8 @@
     <licenseUrl>https://github.com/google/googletest/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/google/googletest</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Google testframwork built from githab repository</description>
-    <releaseNotes>MasterRevision: ce29e55cfcbbadfdb41542bafa6104b26c7e3e5c</releaseNotes>
+    <description>Google testframwork built from github repository</description>
+    <releaseNotes>MasterRevision is included in nupgk:/build/master</releaseNotes>
     <copyright>Google</copyright>
     <tags>google test gtest unittest</tags>
     <summary>Testframework for unit testing. See project URL for details.</summary>
