@@ -2,3 +2,8 @@
 **/.vs/*
 **/bin/*
 **/build/*
+**/packages/*
+**/x64/*
+**/Win32/*
+**/Debug/*
+**/Release/*

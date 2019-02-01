@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package  xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>gtest</id>
+    <version>2019.01.30</version>
+    <title>Google testframework</title>
+    <authors>Google</authors>
+    <owners>Google</owners>
+    <licenseUrl>https://github.com/google/googletest/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/google/googletest</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Google testframwork built from github repository</description>
+    <releaseNotes>MasterRevision is included in nupgk:/build/master</releaseNotes>
+    <copyright>Google</copyright>
+    <tags>google test gtest unittest</tags>
+    <summary>Testframework for unit testing. See project URL for details.</summary>
+  </metadata>
+  <files>
+    <file src=".git\refs\heads\master" target="build\master" />
+    <file src="gtest.targets" target="build\native\gtest.targets"/>
+    <file src="googletest\include\**" target="build\native\include" />
+    <file src="..\build\Win32\bin\**" target="build\native\lib\Win32" />
+    <file src="..\build\Win32\lib\**" target="build\native\lib\Win32" />
+    <file src="..\build\Win64\bin\**" target="build\native\lib\x64" />
+    <file src="..\build\Win64\lib\**" target="build\native\lib\x64" />
+  </files>
+</package>
