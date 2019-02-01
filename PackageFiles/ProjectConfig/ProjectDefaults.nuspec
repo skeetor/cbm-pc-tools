@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package  xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>ProjectDefaults</id>
+    <version>2019.02.01</version>
+    <title>Project Defaults</title>
+    <authors>Gerhard Gruber</authors>
+    <owners>Gerhard Gruber</owners>
+    <licenseUrl>https://github.com/skeetor/cbm-pc-tools/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/skeetor/cbm-pc-tools</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Default settings for projects</description>
+    <releaseNotes>MasterRevision is included in nupgk:/build/master</releaseNotes>
+    <copyright>Gerhard Gruber</copyright>
+    <tags>VisualStudio Tools Projects</tags>
+    <summary>Contains various settings for project properties. Contact: sparhawk@gmx.at</summary>
+  </metadata>
+  <files>
+    <file src="..\..\.git\refs\heads\master" target="build\master" />
+    <file src="ProjectDefaults.targets" target="build\native\ProjectDefaults.targets"/>
+  </files>
+</package>

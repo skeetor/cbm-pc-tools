@@ -4,12 +4,18 @@
   <PropertyGroup>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDirSharingDetected>None</IntDirSharingDetected>
   </PropertyGroup>
 
   <ItemDefinitionGroup>
+    <ClCompile>
+    </ClCompile>
     <BuildLog>
       <Path>$(SolutionDir)build\$(Platform)\$(Configuration)\$(ProjectName)\$(MSBuildProjectName).log</Path>
     </BuildLog>
+    <Link>
+      <OutputFile>$(SolutionDir)bin\$(Configuration)\$(Platform)\$(TargetExt)</OutputFile>
+    </Link>
   </ItemDefinitionGroup>
 
 </Project>
