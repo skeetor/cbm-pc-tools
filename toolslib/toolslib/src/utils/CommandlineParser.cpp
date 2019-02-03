@@ -15,7 +15,8 @@ namespace toolslib
 {
 	namespace utils
 	{
-		CommandlineParser::CommandlineParser()
+		CommandlineParser::CommandlineParser(bool strict)
+		: mStrict(strict)
 		{
 			mOptions.emplace_back(Option().name("").arguments((uint32_t)-1, (uint32_t)-1));
 		}
@@ -115,10 +116,11 @@ namespace toolslib
 		{
 			const Option *o = findName(oName);
 			if (o == nullptr)
+			{
 				o = findParam(oName);
-
-			if (o == nullptr)
-				throw invalid_argument("Name does not exist!");
+				if (o == nullptr)
+					throw invalid_argument("Name does not exist!");
+			}
 
 			return o->values();
 		}
@@ -164,6 +166,14 @@ namespace toolslib
 			o.param(oParam);
 			o.description(oDescription);
 			return addOption(o);
+		}
+
+		bool CommandlineParser::isParam(const std::string& param) const
+		{
+			if (param.empty())
+				return false;
+
+			return param[0] == '-';
 		}
 
 		bool CommandlineParser::validateOptionParamCount(const Option& oOption, uint32_t nAdditionals) const
@@ -258,17 +268,18 @@ namespace toolslib
 					continue;
 				}
 
-				if (param.rfind("-") == 0)
+				if (isParam(param))
 				{
 					string name;
 					Option *o = nullptr;
-					if (param.rfind("--") == 0)
+
+					if (param.size() > 1 && param[1] == '-')
 					{
 						name = param.substr(2);
 						if (name.length() == 0)
 							name = "--";
 
-						o = const_cast<Option *>(findParam(name));
+						o = const_cast<Option *>(findName(name));
 					}
 					else
 					{
@@ -280,7 +291,7 @@ namespace toolslib
 					}
 
 					// Validate the option we are leaving before we switch to a new one.
-					if (o == nullptr|| !validateOptionParamCount(*current, 0) || !validateOptionParamCount(*prev, arg_count))
+					if (o == nullptr || !validateOptionParamCount(*current, 0) || !validateOptionParamCount(*prev, arg_count))
 					{
 						mErrorIndex = (uint32_t)i;
 						mErrorParam = param;
@@ -308,10 +319,41 @@ namespace toolslib
 
 				current->getLatest().emplace_back(param);
 
-				if (!validateOptionParamCount(*current, arg_count))
+				if ((current == undefined && isStrict()) || !validateOptionParamCount(*current, arg_count))
 				{
 					mErrorIndex = (uint32_t)i;
 					mErrorParam = param;
+					return false;
+				}
+			}
+
+			arg_count = -1;
+			for (const Option &o : mOptions)
+			{
+				arg_count++;
+				if (arg_count == 0)
+					continue;
+
+				const vector<vector<string>> &values = o.values();
+				if (values.size() == 0 && o.isMandatory())
+				{
+					mErrorIndex = (uint32_t)arg_count;
+					if (!o.name().empty())
+						mErrorParam = o.name();
+					else
+						mErrorParam = o.param();
+
+					return false;
+				}
+
+				if (!validateOptionParamCount(o, 0u))
+				{
+					mErrorIndex = (uint32_t)arg_count;
+					if (!o.name().empty())
+						mErrorParam = o.name();
+					else
+						mErrorParam = o.param();
+
 					return false;
 				}
 			}

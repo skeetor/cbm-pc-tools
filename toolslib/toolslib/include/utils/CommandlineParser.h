@@ -233,7 +233,11 @@ namespace toolslib
 			};
 
 		public:
-			CommandlineParser();
+			/**
+			 * If strict == false, arguments which are unknown will be stored as unnamed arguments.
+			 * This can be used when mixing paramters with names and without names.
+			 */
+			CommandlineParser(bool strict = true);
 			virtual ~CommandlineParser();
 
 			/**
@@ -299,13 +303,18 @@ namespace toolslib
 			Option& addOption(const Option& oOption);
 
 		protected:
+			bool isStrict() const { return mStrict; }
+			void setStrict(bool strict = true) { mStrict = strict; }
+
 			const std::vector<Option>& getOptions() const;
 			const Option *findName(const std::string& oName) const;
 			const Option *findParam(const std::string& oName) const;
 			bool validateOptionParamCount(const Option& oOption, uint32_t nAdditionals) const;
+			bool isParam(const std::string& param) const;
 
 		private:
 			std::vector<Option> mOptions;
+			bool mStrict : 1;
 			uint32_t mErrorIndex;
 			std::string mErrorParam;
 		};
