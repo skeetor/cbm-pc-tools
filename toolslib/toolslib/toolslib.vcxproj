@@ -22,6 +22,11 @@
     <ClInclude Include="include\patterns\event.h" />
     <ClInclude Include="include\patterns\observer.h" />
     <ClInclude Include="include\patterns\serialize.h" />
+    <ClInclude Include="include\toolslib\patterns\event.h" />
+    <ClInclude Include="include\toolslib\patterns\observer.h" />
+    <ClInclude Include="include\toolslib\patterns\serialize.h" />
+    <ClInclude Include="include\toolslib\toolslib_api.h" />
+    <ClInclude Include="include\toolslib\utils\CommandlineParser.h" />
     <ClInclude Include="include\toolslib_api.h" />
     <ClInclude Include="include\utils\CommandlineParser.h" />
   </ItemGroup>

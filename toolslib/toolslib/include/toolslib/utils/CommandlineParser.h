@@ -251,6 +251,9 @@ namespace toolslib
 			bool parse(const std::vector<std::string>& argv);
 			bool parse(int argc, char *argv[]);
 
+			void setHeader(const std::string &oHeader) { mHeader = oHeader; }
+			const std::string& getHeader() const { return mHeader; }
+
 			/**
 			 * If an error was reported this returnes the index of the parameter that caused it.
 			 */
@@ -317,6 +320,7 @@ namespace toolslib
 			bool mStrict : 1;
 			uint32_t mErrorIndex;
 			std::string mErrorParam;
+			std::string mHeader;
 		};
 	}
 }

@@ -42,6 +42,9 @@ namespace toolslib
 
 		void CommandlineParser::help() const
 		{
+			if (!getHeader().empty())
+				cout << getHeader() << endl;
+
 			for (const Option &o : mOptions)
 			{
 				if (o.param().empty() && o.name().empty())

@@ -24,6 +24,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\patterns\event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\patterns\observer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\patterns\serialize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\utils\CommandlineParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\toolslib\toolslib_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
