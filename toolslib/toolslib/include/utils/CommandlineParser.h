@@ -191,17 +191,22 @@ namespace toolslib
 				}
 
 				/**
+				 * Clears all values.
+				 */
+				void reset()
+				{
+					mValues.clear();
+				}
+
+				/**
 				 * If a parameter can occur multiple times, we need to keep track of each arguments individually
 				 * @return
 				 */
 				std::vector<std::string>& addSection()
 				{
 					// The first entry contains all items which are not specified with a switch
-					if (mValues.empty())
-						mValues.emplace_back(std::vector<std::string>());
-
 					mValues.emplace_back(std::vector<std::string>());
-					return mValues[mValues.size() - 1];
+					return mValues.back();
 				}
 
 			private:
@@ -210,7 +215,7 @@ namespace toolslib
 					if (mValues.empty())
 						return addSection();
 
-					return mValues[mValues.size() - 1];
+					return mValues.back();
 				}
 
 				private:
@@ -230,6 +235,11 @@ namespace toolslib
 		public:
 			CommandlineParser();
 			virtual ~CommandlineParser();
+
+			/**
+			 * Clears all currently parsed parameters.
+			 */
+			void reset();
 
 			/**
 			 * Parse the arguments from the commandline parameters
@@ -258,24 +268,29 @@ namespace toolslib
 			bool hasArgument(const std::string oName) const;
 
 			/**
+			 * Returns the arguments for the unnamed parameters
+			 */
+			const Option &getUnnamed() const;
+
+			/**
 			 * Return the values for the specfied parameter. If the list is empty, the parameter
 			 * was not used. 
 			 * nIndex specfies the nth usage of the paramter. This is only relevant if the same
 			 * parameter can occur multiple times on the commandline.
 			 */
-			const std::vector<std::string>& getArgument(const std::string& oName, uint32_t nIndex = 0) const;
+			const std::vector<std::string> &getArgument(const std::string& oName, uint32_t nIndex = 0) const;
 
 			/**
 			 * Returns the list of values for the specfied parameters. If the list is empty, the
 			 * parameter was not used.
 			 */
-			const std::vector<std::vector<std::string>>& getArguments(const std::string& oName) const;
+			const std::vector<std::vector<std::string>> &getArguments(const std::string& oName) const;
 
 			/**
 			 * Adds the specified option to the parser. If an option with the same name already
 			 * exists, an invalid_argument eception is thrown.
 			 */
-			Option& addOption(const std::string& oOption, const std::string& oParam = "", const std::string& oDescription = "");
+			Option& addOption(const std::string& oOption, const std::string& oParam, const std::string& oDescription);
 
 			/**
 			 * Adds the specified option to the parser. If an option with the same name already
@@ -283,22 +298,16 @@ namespace toolslib
 			 */
 			Option& addOption(const Option& oOption);
 
-			bool isNull(const Option& oOption) const;
-
 		protected:
 			const std::vector<Option>& getOptions() const;
-			const Option& findName(const std::string& oName) const;
-			const Option& findParam(const std::string& oName) const;
+			const Option *findName(const std::string& oName) const;
+			const Option *findParam(const std::string& oName) const;
 			bool validateOptionParamCount(const Option& oOption, uint32_t nAdditionals) const;
 
 		private:
 			std::vector<Option> mOptions;
 			uint32_t mErrorIndex;
 			std::string mErrorParam;
-
-			static std::vector<std::vector<std::string>> null_param;
-			static std::vector<std::string> null_values;
-			static CommandlineParser::Option null_option;
 		};
 	}
 }

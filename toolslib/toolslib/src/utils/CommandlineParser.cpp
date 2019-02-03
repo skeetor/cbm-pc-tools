@@ -15,13 +15,9 @@ namespace toolslib
 {
 	namespace utils
 	{
-		vector<vector<string>> CommandlineParser::null_param;
-		vector<string> CommandlineParser::null_values;
-		CommandlineParser::Option CommandlineParser::null_option;
-
 		CommandlineParser::CommandlineParser()
 		{
-			mOptions.emplace_back(Option().name("").arguments(-1, -1));
+			mOptions.emplace_back(Option().name("").arguments((uint32_t)-1, (uint32_t)-1));
 		}
 
 		CommandlineParser::~CommandlineParser()
@@ -36,14 +32,6 @@ namespace toolslib
 		const string& CommandlineParser::getErrorParam() const
 		{
 			return mErrorParam;
-		}
-
-		bool CommandlineParser::isNull(const Option& oOption) const
-		{
-			if (&oOption == &null_option)
-				return true;
-
-			return false;
 		}
 
 		const vector<CommandlineParser::Option>& CommandlineParser::getOptions() const
@@ -90,53 +78,61 @@ namespace toolslib
 			return !getArgument(oName).empty();
 		}
 
-		const CommandlineParser::Option& CommandlineParser::findParam(const string& oName) const
+		const CommandlineParser::Option *CommandlineParser::findParam(const string& oName) const
 		{
 			if (oName.empty())
-				return null_option;
+				return nullptr;
 
 			for (const Option& o : getOptions())
 			{
 				if (oName == o.param())
-					return o;
+					return &o;
 			}
 
-			return null_option;
+			return nullptr;
 		}
 
-		const CommandlineParser::Option& CommandlineParser::findName(const string& oName) const
+		const CommandlineParser::Option *CommandlineParser::findName(const string& oName) const
 		{
 			if (oName.empty())
-				return null_option;
+				return nullptr;
 
 			for (const Option& o : getOptions())
 			{
 				if (oName == o.name())
-					return o;
+					return &o;
 			}
 
-			return null_option;
+			return nullptr;
 		}
 
-		const vector<vector<string>>& CommandlineParser::getArguments(const string& oName) const
+		const CommandlineParser::Option &CommandlineParser::getUnnamed() const
 		{
-			const Option* o = &findName(oName);
-			if (o->undefined())
-				o = &findParam(oName);
+			return mOptions[0];
+		}
+
+		const vector<vector<string>> &CommandlineParser::getArguments(const string& oName) const
+		{
+			const Option *o = findName(oName);
+			if (o == nullptr)
+				o = findParam(oName);
+
+			if (o == nullptr)
+				throw invalid_argument("Name does not exist!");
 
 			return o->values();
 		}
 
-		const vector<string>& CommandlineParser::getArgument(const string& oName, uint32_t nIndex) const
+		const vector<string> &CommandlineParser::getArgument(const string& oName, uint32_t nIndex) const
 		{
-			const Option *o = &findName(oName);
-			if (isNull(*o))
-				o = &findParam(oName);
+			const Option *o = findName(oName);
+			if (o == nullptr)
+				o = findParam(oName);
 
 			const vector<vector<string>>& values = o->values();
 
-			if (isNull(*o) || values.empty() || nIndex >= values.size())
-				return null_values;
+			if (o == nullptr || values.empty() || nIndex >= values.size())
+				throw invalid_argument("Name does not exist!");
 
 			return values[nIndex];
 		}
@@ -147,10 +143,10 @@ namespace toolslib
 			if (oOption.name().empty() && oOption.param().empty())
 				throw invalid_argument("Name and Param may not both be empty!");
 
-			if (!isNull(findName(oOption.name())))		// Already exists
+			if (findName(oOption.name()) != nullptr)		// Already exists
 				throw invalid_argument("Name already exists!");
 
-			if (!isNull(findParam(oOption.param())))		// Already exists
+			if (findParam(oOption.param()) != nullptr)		// Already exists
 				throw invalid_argument("Param already exists!");
 
 			mOptions.emplace_back(oOption);
@@ -229,18 +225,26 @@ namespace toolslib
 			return parse(args);
 		}
 
+		void CommandlineParser::reset()
+		{
+			mErrorIndex = (uint32_t)-1;
+			mErrorParam = "";
+
+			for (Option &o : mOptions)
+				o.reset();
+		}
+
 		bool CommandlineParser::parse(const vector<string>& args)
 		{
-			mErrorIndex = -1;
-			mErrorParam = "";
+			reset();
 
 			if (args.empty())
 				return false;
 
-			Option& undefined = const_cast<Option&>(findParam(""));		// unknown params go here.
-			undefined.addSection();
-			Option *current = &undefined;
-			Option *prev = &undefined;
+			Option *undefined = const_cast<Option *>(&getUnnamed());		// unknown params go here.
+			undefined->addSection();
+			Option *current = undefined;
+			Option *prev = undefined;
 			int arg_count = 0;
 
 			for (size_t i = 0; i < args.size(); i++)
@@ -264,7 +268,7 @@ namespace toolslib
 						if (name.length() == 0)
 							name = "--";
 
-						o = &const_cast<Option&>(findParam(name));
+						o = const_cast<Option *>(findParam(name));
 					}
 					else
 					{
@@ -272,11 +276,11 @@ namespace toolslib
 						if (name.length() == 0)
 							name = "-";
 
-						o = &const_cast<Option&>(findParam(name));
+						o = const_cast<Option *>(findParam(name));
 					}
 
 					// Validate the option we are leaving before we switch to a new one.
-					if (isNull(*o) || !validateOptionParamCount(*current, 0) || !validateOptionParamCount(*prev, arg_count))
+					if (o == nullptr|| !validateOptionParamCount(*current, 0) || !validateOptionParamCount(*prev, arg_count))
 					{
 						mErrorIndex = (uint32_t)i;
 						mErrorParam = param;
@@ -284,7 +288,7 @@ namespace toolslib
 					}
 
 					arg_count = 0;
-					prev = &undefined;
+					prev = undefined;
 					current = o;
 					current->addSection();
 					continue;
@@ -295,7 +299,7 @@ namespace toolslib
 				{
 					arg_count = 0;
 					prev = current;
-					current = &undefined;
+					current = undefined;
 				}
 
 				// Count how many arguments we would have passed to the previous option
