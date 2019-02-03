@@ -24,3 +24,8 @@ To create a new package for gest follow these steps:
 * Go the github directory and run 'nuget pack gtest.nuspec'
 
 That's it. You should now have a 'gtest.<version>.nupkg' in your github directory. Copy this to your package directory and configure Visual Studio to use that package source.
+
+### toolslib
+
+See the local toolslib README.md for details.
+

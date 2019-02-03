@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" >
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories Condition="$(ToolsLibInclude) == ''">%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)..\..\build\native\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="$(ToolsLibInclude) != ''">%(AdditionalIncludeDirectories);$(ToolsLibInclude)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories Condition="$(ToolsLibLibrary) == ''">%(AdditionalLibraryDirectories);$(MSBuildThisFileDirectory)..\..\build\native\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="$(ToolsLibLibrary) != ''">%(AdditionalLibraryDirectories);$(ToolsLibLibrary)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);toolslib.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>
