@@ -129,6 +129,9 @@
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ca65Formatter.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\toolslib.2019.2.3\build\native\toolslib.targets" Condition="Exists('packages\toolslib.2019.2.3\build\native\toolslib.targets')" />

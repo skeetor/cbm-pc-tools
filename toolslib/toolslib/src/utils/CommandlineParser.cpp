@@ -251,9 +251,6 @@ namespace toolslib
 		{
 			reset();
 
-			if (args.empty())
-				return false;
-
 			Option *undefined = const_cast<Option *>(&getUnnamed());		// unknown params go here.
 			undefined->addSection();
 			Option *current = undefined;
