@@ -168,6 +168,7 @@ namespace toolslib
 			o.name(oOption);
 			o.param(oParam);
 			o.description(oDescription);
+
 			return addOption(o);
 		}
 
@@ -256,15 +257,25 @@ namespace toolslib
 			Option *current = undefined;
 			Option *prev = undefined;
 			int arg_count = 0;
+			int param_pos = -1;
+			string cur_param;
 
 			for (size_t i = 0; i < args.size(); i++)
 			{
+				param_pos++;
+
 				const string& param = args[i];
+				cur_param = param;
 
 				// If this is a passthrough parameter, we always store the args without parsing.
 				if (current->isPassThrough())
 				{
 					current->getLatest().emplace_back(param);
+
+					Option::param_callback_t callback = current->callback();
+					if (callback)
+						callback(*this, *current);
+
 					continue;
 				}
 
@@ -293,10 +304,15 @@ namespace toolslib
 					// Validate the option we are leaving before we switch to a new one.
 					if (o == nullptr || !validateOptionParamCount(*current, 0) || !validateOptionParamCount(*prev, arg_count))
 					{
-						mErrorIndex = (uint32_t)i;
+						mErrorIndex = (uint32_t)param_pos;
 						mErrorParam = param;
 						return false;
 					}
+
+					// Before we switch to the next parameter we now call the handler.
+					Option::param_callback_t callback = current->callback();
+					if (callback)
+						callback(*this, *current);
 
 					arg_count = 0;
 					prev = undefined;
@@ -318,44 +334,21 @@ namespace toolslib
 					arg_count++;
 
 				current->getLatest().emplace_back(param);
-
-				if ((current == undefined && isStrict()) || !validateOptionParamCount(*current, arg_count))
-				{
-					mErrorIndex = (uint32_t)i;
-					mErrorParam = param;
-					return false;
-				}
 			}
 
-			arg_count = -1;
-			for (const Option &o : mOptions)
+			// We need to handle the last argument, as this can not be validated inside the loop
+			if ((current == undefined && isStrict()) || !validateOptionParamCount(*current, arg_count))
 			{
-				arg_count++;
-				if (arg_count == 0)
-					continue;
-
-				const vector<vector<string>> &values = o.values();
-				if (values.size() == 0 && o.isMandatory())
-				{
-					mErrorIndex = (uint32_t)arg_count;
-					if (!o.name().empty())
-						mErrorParam = o.name();
-					else
-						mErrorParam = o.param();
-
-					return false;
-				}
-
-				if (!validateOptionParamCount(o, 0u))
-				{
-					mErrorIndex = (uint32_t)arg_count;
-					if (!o.name().empty())
-						mErrorParam = o.name();
-					else
-						mErrorParam = o.param();
-
-					return false;
-				}
+				mErrorIndex = (uint32_t)param_pos;
+				mErrorParam = cur_param;
+				return false;
+			}
+			else
+			{
+				// Before we switch to the next parameter we now call the handler.
+				Option::param_callback_t callback = current->callback();
+				if (callback)
+					callback(*this, *current);
 			}
 
 			return true;

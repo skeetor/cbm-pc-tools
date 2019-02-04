@@ -8,20 +8,36 @@
 #define COMMANDLINE_PARSER_INCLUDED_H
 
 #include "toolslib/toolslib_api.h"
+#include "toolslib/toolslib_def.h"
 
 #include <string>
 #include <vector>
+#include <functional>
 
 namespace toolslib
 {
 	namespace utils
 	{
+		/**
+		 * CommandlineParser parses the arguments passed on the commandline. It can either collect
+		 * all options at once and later be accessed individually, or it can be configured to use
+		 * a callback per option, which calls the appropriate handler when an option has passed
+		 * the validation. In this case the user should be aware, that now all options have already
+		 * been parsed, so the order on the commandline makes a difference. However this may be usefull
+		 * to keep track of the order of options, or execute an option directly.
+		 *
+		 * For detailed usage look at the testcases, which should cover all szenarios. If you feel
+		 * that some are missing, either send me a note, or write an issue on the repository.
+		 */
 		class TOOLSLIB_API CommandlineParser
 		{
 		public:
 			class TOOLSLIB_API Option
 			{
 				friend CommandlineParser;
+
+			public:
+				typedef std::function<void(CommandlineParser &oParser, const Option &oOption)> param_callback_t;
 
 			public:
 				virtual ~Option()
@@ -180,6 +196,30 @@ namespace toolslib
 					return mMaxArgs;
 				}
 
+				Option& callbackData(void *pData)
+				{
+					mCallbackData = pData;
+
+					return *this;
+				}
+
+				void *callbackData() const
+				{
+					return mCallbackData;
+				}
+
+				Option &callback(param_callback_t oCallback)
+				{
+					mCallback = oCallback;
+
+					return *this;
+				}
+
+				param_callback_t callback() const
+				{
+					return mCallback;
+				}
+
 			protected:
 				Option()
 				{
@@ -188,6 +228,7 @@ namespace toolslib
 					mMinArgs = 0;
 					mMaxArgs = 0;
 					mPassThrough = false;
+					mCallbackData = nullptr;
 				}
 
 				/**
@@ -230,6 +271,8 @@ namespace toolslib
 					std::string mParam;				// Short param used with '-'
 					std::string mDescription;
 					std::vector<std::vector<std::string>> mValues;
+					param_callback_t mCallback;
+					void *mCallbackData;
 			};
 
 		public:
@@ -246,11 +289,17 @@ namespace toolslib
 			void reset();
 
 			/**
-			 * Parse the arguments from the commandline parameters
+			 * Parse the arguments from the commandline parameters.
+			 * It his returns false, it is not guaruanteed that all parameters have been parsed 
+			 * and are available in the options. The parser returns false, as soon as the first
+			 * option doesn't met the critierias.
 			 */
 			bool parse(const std::vector<std::string>& argv);
 			bool parse(int argc, char *argv[]);
 
+			/**
+			 * Sets a header line, which is used for the help() method.
+			 */
 			void setHeader(const std::string &oHeader) { mHeader = oHeader; }
 			const std::string& getHeader() const { return mHeader; }
 

@@ -187,6 +187,23 @@ namespace
 		ASSERT_EQ(1u, params->size());
 	}
 
+	TEST_F(TCommandlineParser, ParamterWithMissingArgument)
+	{
+		addOption("enableFeature", "s", "Path to the home directory")
+			.arguments(2, 2)
+			;
+		vector<string> args =
+		{
+			"--enableFeature", "1"
+		};
+
+		const vector<vector<string>> *params = nullptr;
+
+		EXPECT_FALSE(parse(args));
+		EXPECT_NO_THROW((params = &getArguments("enableFeature")));
+		ASSERT_EQ(1u, params->size());
+	}
+
 	TEST_F(TCommandlineParser, ParamterWithMultipleTooManyStrict)
 	{
 		addOption("enableFeature", "s", "Path to the home directory")
@@ -297,5 +314,63 @@ namespace
 		EXPECT_EQ("0", (*values)[0]);
 
 		EXPECT_THROW((values = &getArgument("enableFeature", 2)), invalid_argument);
+	}
+
+	TEST_F(TCommandlineParser, ParamterWithCallback)
+	{
+		bool param1 = false;
+		bool param2 = false;
+
+		addOption("param1", "", "")
+			.multiple()
+			.arguments()
+			.callback(
+				[&](CommandlineParser &oParser, const CommandlineParser::Option &oOption)
+				{
+					UNUSED(oParser);
+					param1 = true;
+					const vector<vector<string>> &values = oOption.values();
+					EXPECT_EQ(nullptr, oOption.callbackData());
+					ASSERT_EQ(1u, values.size());
+					ASSERT_EQ(1u, values[0].size());
+					EXPECT_EQ("0", values[0][0]);
+				}
+			)
+		;
+		addOption("param2", "", "")
+			.multiple()
+			.arguments(2, 2)
+			.callbackData(this)
+			.callback(
+				[&](CommandlineParser &oParser, const CommandlineParser::Option &oOption)
+				{
+					UNUSED(oParser);
+					param2 = true;
+					const vector<vector<string>> values = oOption.values();
+					const vector<string> *params = nullptr;
+
+					EXPECT_EQ(this, oOption.callbackData());
+					ASSERT_EQ(1u, values.size());
+
+					ASSERT_EQ(2u, values[0].size());
+					params = &values[0];
+					EXPECT_EQ("1", (*params)[0]);
+					EXPECT_EQ("2", (*params)[1]);
+
+					params = &oParser.getArgument("param2");
+				}
+			)
+		;
+
+		vector<string> args =
+		{
+			"--param1", "0"
+			,"--param2", "1", "2"
+		};
+
+		EXPECT_TRUE(parse(args));
+
+		EXPECT_TRUE(param1);
+		EXPECT_TRUE(param2);
 	}
 }
