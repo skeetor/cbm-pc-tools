@@ -19,9 +19,37 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\toolslib\compression\zlib\deflate.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\gzguts.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\inffast.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\inffixed.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\inflate.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\inftrees.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\ioapi.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\minizip\crypt.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\minizip\iowin32.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\minizip\mztools.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\minizip\zip.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\trees.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\unzip.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\zconf.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\zlib.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\zlib_crc32.h" />
+    <ClInclude Include="include\toolslib\compression\zlib\zutil.h" />
+    <ClInclude Include="include\toolslib\files\BaseFile.h" />
+    <ClInclude Include="include\toolslib\files\File.h" />
+    <ClInclude Include="include\toolslib\files\FileFactory.h" />
+    <ClInclude Include="include\toolslib\files\Filename.h" />
+    <ClInclude Include="include\toolslib\files\FilesystemScanner.h" />
+    <ClInclude Include="include\toolslib\files\GZFile.h" />
+    <ClInclude Include="include\toolslib\files\IFile.h" />
+    <ClInclude Include="include\toolslib\files\ZIPFile.h" />
+    <ClInclude Include="include\toolslib\files\ZIPScanner.h" />
     <ClInclude Include="include\toolslib\patterns\event.h" />
     <ClInclude Include="include\toolslib\patterns\observer.h" />
     <ClInclude Include="include\toolslib\patterns\serialize.h" />
+    <ClInclude Include="include\toolslib\string\Helpers.h" />
+    <ClInclude Include="include\toolslib\string\Wildcards.h" />
     <ClInclude Include="include\toolslib\toolslib_api.h" />
     <ClInclude Include="include\toolslib\toolslib_def.h" />
     <ClInclude Include="include\toolslib\utils\CommandlineParser.h" />
@@ -29,8 +57,69 @@
     <ClInclude Include="include\toolslib\utils\Formatter.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\compression\zlib\adler32.c" />
+    <ClCompile Include="src\compression\zlib\compress.c" />
+    <ClCompile Include="src\compression\zlib\deflate.c" />
+    <ClCompile Include="src\compression\zlib\gzclose.c" />
+    <ClCompile Include="src\compression\zlib\gzlib.c" />
+    <ClCompile Include="src\compression\zlib\gzread.c" />
+    <ClCompile Include="src\compression\zlib\gzwrite.c" />
+    <ClCompile Include="src\compression\zlib\infback.c" />
+    <ClCompile Include="src\compression\zlib\inffas8664.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\inffast.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\inflate.c" />
+    <ClCompile Include="src\compression\zlib\inftrees.c" />
+    <ClCompile Include="src\compression\zlib\minizip\ioapi.c" />
+    <ClCompile Include="src\compression\zlib\minizip\iowin32.c" />
+    <ClCompile Include="src\compression\zlib\minizip\miniunz.c" />
+    <ClCompile Include="src\compression\zlib\minizip\minizip.c" />
+    <ClCompile Include="src\compression\zlib\minizip\mztools.c" />
+    <ClCompile Include="src\compression\zlib\minizip\unzip.c" />
+    <ClCompile Include="src\compression\zlib\minizip\zip.c" />
+    <ClCompile Include="src\compression\zlib\trees.c" />
+    <ClCompile Include="src\compression\zlib\uncompr.c" />
+    <ClCompile Include="src\compression\zlib\zlib_crc32.c" />
+    <ClCompile Include="src\compression\zlib\zutil.c" />
+    <ClCompile Include="src\files\BaseFile.cpp" />
+    <ClCompile Include="src\files\File.cpp" />
+    <ClCompile Include="src\files\FileFactory.cpp" />
+    <ClCompile Include="src\files\Filename.cpp" />
+    <ClCompile Include="src\files\FilesystemScanner.cpp" />
+    <ClCompile Include="src\files\GZFile.cpp" />
+    <ClCompile Include="src\files\ZIPFile.cpp" />
+    <ClCompile Include="src\files\ZIPScanner.cpp" />
+    <ClCompile Include="src\string\Helpers.cpp" />
+    <ClCompile Include="src\string\Wildcards.cpp" />
     <ClCompile Include="src\utils\CommandlineParser.cpp" />
     <ClCompile Include="src\utils\EmptyFormatter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\toolslib.nuspec" />
+    <None Include="..\toolslib.targets" />
+    <None Include="src\compression\zlib\gvmat32.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="src\compression\zlib\gvmat64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="src\compression\zlib\inffas32.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="src\compression\zlib\inffasx64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -102,23 +191,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)$(ProjectName)\include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)$(ProjectName)\include;$(SolutionDir)$(ProjectName)\include\toolslib\compression\zlib;$(SolutionDir)$(ProjectName)\include\toolslib\compression\zlib\minizip;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)$(ProjectName)\include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)$(ProjectName)\include;$(SolutionDir)$(ProjectName)\include\toolslib\compression\zlib;$(SolutionDir)$(ProjectName)\include\toolslib\compression\zlib\minizip;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)$(ProjectName)\include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)$(ProjectName)\include;$(SolutionDir)$(ProjectName)\include\toolslib\compression\zlib;$(SolutionDir)$(ProjectName)\include\toolslib\compression\zlib\minizip;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)$(ProjectName)\include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)$(ProjectName)\include;$(SolutionDir)$(ProjectName)\include\toolslib\compression\zlib;$(SolutionDir)$(ProjectName)\include\toolslib\compression\zlib\minizip;</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ASMV;ASMINF;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -127,7 +216,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ASMV;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -136,7 +225,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ASMV;ASMINF;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -147,7 +236,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ASMV;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

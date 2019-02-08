@@ -18,7 +18,7 @@ namespace toolslib
 			return true;
 		}
 
-		bool EmptyFormatter::flush(std::string &output)
+		bool EmptyFormatter::flush(string &output)
 		{
 			UNUSED(output);
 

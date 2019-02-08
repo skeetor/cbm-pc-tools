@@ -172,7 +172,7 @@ namespace toolslib
 			return addOption(o);
 		}
 
-		bool CommandlineParser::isParam(const std::string& param) const
+		bool CommandlineParser::isParam(const string& param) const
 		{
 			if (param.empty())
 				return false;
@@ -225,7 +225,7 @@ namespace toolslib
 
 		bool CommandlineParser::parse(int argc, char *argv[])
 		{
-			std::vector<std::string> args;
+			vector<string> args;
 			args.reserve(argc - 1);
 
 			for (int i = 1; i < argc; i++)
