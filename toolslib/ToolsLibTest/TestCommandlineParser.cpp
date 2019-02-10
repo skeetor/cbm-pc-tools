@@ -4,8 +4,6 @@
 
 #include "toolslib/utils/CommandlineParser.h"
 
-#pragma comment(lib, "toolslib.lib")
-
 using namespace std;
 using namespace toolslib;
 using namespace toolslib::utils;

@@ -22,6 +22,39 @@
     <Filter Include="Header Files\patterns">
       <UniqueIdentifier>{5dcd1575-15d2-4d7e-9356-a9d02a870080}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\files">
+      <UniqueIdentifier>{88f3ac83-a3c4-456a-b46e-a80eff002e7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\files">
+      <UniqueIdentifier>{4e25941e-d8bc-4b41-85e3-5bc2a8803bc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\string">
+      <UniqueIdentifier>{fc05072b-ffa0-4344-94ec-b9b454338648}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\string">
+      <UniqueIdentifier>{2b3cdf71-996c-41c5-b9dc-2c8a8c2ab86f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\compression">
+      <UniqueIdentifier>{8a003ff2-d9a8-486a-b24f-1d41b272fe9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\compression\zlib">
+      <UniqueIdentifier>{4bd8fa2b-9655-4ab6-bc29-3a67b8fe709e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\compression\zlib\minizip">
+      <UniqueIdentifier>{ee861e3d-aa19-4fc3-abd7-e65b5fbb1ada}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\compression">
+      <UniqueIdentifier>{c8d78c27-6f76-49d9-a801-715c4cc5c6fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\compression\zlib">
+      <UniqueIdentifier>{f9afe4d6-4d47-4a22-a9f7-3c1109337d3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\compression\zlib\minizip">
+      <UniqueIdentifier>{633c9f55-0712-4e3b-896f-43760415e540}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nuget">
+      <UniqueIdentifier>{b28b76d0-0f35-4992-af8b-c4858cd71abf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\toolslib\toolslib_api.h">
@@ -48,6 +81,93 @@
     <ClInclude Include="include\toolslib\toolslib_def.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\toolslib\files\BaseFile.h">
+      <Filter>Header Files\files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\files\File.h">
+      <Filter>Header Files\files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\files\FileFactory.h">
+      <Filter>Header Files\files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\files\GZFile.h">
+      <Filter>Header Files\files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\files\IFile.h">
+      <Filter>Header Files\files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\files\ZIPFile.h">
+      <Filter>Header Files\files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\files\Filename.h">
+      <Filter>Header Files\files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\files\FilesystemScanner.h">
+      <Filter>Header Files\files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\string\Wildcards.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\deflate.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\gzguts.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\inffast.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\inffixed.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\inflate.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\inftrees.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\ioapi.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\trees.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\unzip.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\zconf.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\zlib.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\zlib_crc32.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\zutil.h">
+      <Filter>Header Files\compression\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\minizip\crypt.h">
+      <Filter>Header Files\compression\zlib\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\minizip\iowin32.h">
+      <Filter>Header Files\compression\zlib\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\minizip\mztools.h">
+      <Filter>Header Files\compression\zlib\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\compression\zlib\minizip\zip.h">
+      <Filter>Header Files\compression\zlib\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\string\Helpers.h">
+      <Filter>Header Files\string</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\files\ZIPScanner.h">
+      <Filter>Header Files\files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\toolslib\files\MemoryFile.h">
+      <Filter>Header Files\files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\utils\CommandlineParser.cpp">
@@ -56,5 +176,130 @@
     <ClCompile Include="src\utils\EmptyFormatter.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\files\BaseFile.cpp">
+      <Filter>Source Files\files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\files\File.cpp">
+      <Filter>Source Files\files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\files\FileFactory.cpp">
+      <Filter>Source Files\files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\files\GZFile.cpp">
+      <Filter>Source Files\files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\files\ZIPFile.cpp">
+      <Filter>Source Files\files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\files\Filename.cpp">
+      <Filter>Source Files\files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\files\FilesystemScanner.cpp">
+      <Filter>Source Files\files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\string\Wildcards.cpp">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\minizip\ioapi.c">
+      <Filter>Source Files\compression\zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\minizip\iowin32.c">
+      <Filter>Source Files\compression\zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\minizip\miniunz.c">
+      <Filter>Source Files\compression\zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\minizip\minizip.c">
+      <Filter>Source Files\compression\zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\minizip\mztools.c">
+      <Filter>Source Files\compression\zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\minizip\unzip.c">
+      <Filter>Source Files\compression\zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\minizip\zip.c">
+      <Filter>Source Files\compression\zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\adler32.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\compress.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\deflate.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\gzclose.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\gzlib.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\gzread.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\gzwrite.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\infback.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\inffas8664.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\inffast.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\inflate.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\inftrees.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\trees.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\uncompr.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\zlib_crc32.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compression\zlib\zutil.c">
+      <Filter>Source Files\compression\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\string\Helpers.cpp">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="src\files\ZIPScanner.cpp">
+      <Filter>Source Files\files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\files\MemoryFile.cpp">
+      <Filter>Source Files\files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\files\IFile.cpp">
+      <Filter>Source Files\files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\compression\zlib\gvmat32.asm">
+      <Filter>Source Files\compression\zlib</Filter>
+    </None>
+    <None Include="src\compression\zlib\gvmat64.asm">
+      <Filter>Source Files\compression\zlib</Filter>
+    </None>
+    <None Include="src\compression\zlib\inffas32.asm">
+      <Filter>Source Files\compression\zlib</Filter>
+    </None>
+    <None Include="src\compression\zlib\inffasx64.asm">
+      <Filter>Source Files\compression\zlib</Filter>
+    </None>
+    <None Include="..\toolslib.nuspec">
+      <Filter>nuget</Filter>
+    </None>
+    <None Include="..\toolslib.targets">
+      <Filter>nuget</Filter>
+    </None>
   </ItemGroup>
 </Project>
