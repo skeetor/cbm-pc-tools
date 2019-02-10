@@ -1,22 +1,51 @@
-#ifndef DUMP_FORMATTER_H
-#define DUMP_FORMATTER_H
+#ifndef DUMP_CA65FORMATTER_H
+#define DUMP_CA65FORMATTER_H
 
-#include <string>
+#include "lib/utils/Formatter.h"
 
-class Formatter
+class CA65Formatter
+: public lib::utils::Formatter
 {
 public:
-	virtual ~Formatter() {}
+	typedef enum
+	{
+		HEX,
+		DEC,
+		BIN
+	} ByteType;
 
-	/**
-	 * Formats the input data into the output data.
-	 */
-	virtual bool format(const std::string &input, std::string &output) = 0;
+public:
+	CA65Formatter(ByteType type = HEX, uint16_t columns = 16);
+	~CA65Formatter() override {}
 
-	/**
-	 * Allows to output a possible reamainder of formatted data.
-	 */
-	virtual bool flush(std::string &output) = 0;
+	bool format(const std::string &input, std::string &output) override;
+	bool flush(std::string &output) override;
+	void reset(void) override;
+
+	ByteType getType(void) const
+	{
+		return mType;
+	}
+
+	void setType(ByteType type)
+	{
+		mType = type;
+	}
+
+	uint16_t getColumns(void) const
+	{
+		return mColumns;
+	}
+
+	void setColumns(uint16_t columns)
+	{
+		mColumns = columns;
+	}
+
+private:
+	ByteType mType;
+	uint16_t mColumns;
+	uint16_t mCurColumn;
 };
 
-#endif // DUMP_FORMATTER_H
+#endif // DUMP_CA65FORMATTER_H
