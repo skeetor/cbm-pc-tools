@@ -33,13 +33,12 @@ bool ZipFile::isHeader(const char *pBuffer, size_t nBufferLen)
 // For a ZIP file we must process the filename first so we call the default constructor
 // here, and set the filename manually.
 ZipFile::ZipFile(Filename const &oFilename)
-	: super()
+: super(oFilename)
 {
 	mFileHandle = NULL;
 	mFilePos = invalid64_t;
 	mFileSize = invalid64u_t;
 	setDefaultExtension(".txt");
-	setFilename(oFilename);
 }
 
 ZipFile::~ZipFile(void)
@@ -106,7 +105,7 @@ bool ZipFile::open(void)
 	// i.E. d:\tmp\file.zip
 	if((mFileHandle = unzOpen64(f.getBaseDir().c_str())) == NULL)
 	{
-		//cerr << "Unable to open " << getFilename().getBaseDir() << endl;
+		setIsOpen(false);
 		return false;
 	}
 
@@ -121,24 +120,37 @@ bool ZipFile::open(void)
 		// from the archive.
 		unz_file_info64 file_info;
 		char filename[2001];
-		if(unzGetCurrentFileInfo64(mFileHandle, &file_info, filename, sizeof(filename), NULL, NULL, NULL, NULL) != UNZ_OK)
+		if (unzGetCurrentFileInfo64(mFileHandle, &file_info, filename, sizeof(filename), NULL, NULL, NULL, NULL) != UNZ_OK)
+		{
+			setIsOpen(false);
 			return false;
+		}
 
 		mFileSize = file_info.uncompressed_size;
 
 		fn = filename;
 		if(fn.size() > 0 && fn[fn.size()-1] == '/')
+		{
+			setIsOpen(false);
 			return false;
+		}
 	}
 
 	if(!selectFile(fn))
+	{
+		setIsOpen(false);
 		return false;
+	}
 
 	// Open the current file inside the ZIP
 	if(unzOpenCurrentFile(mFileHandle) != UNZ_OK)
+	{
+		setIsOpen(false);
 		return false;
+	}
 
 	mFilePos = 0;
+	setIsOpen(true);
 
 	return true;
 }

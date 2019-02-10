@@ -48,6 +48,16 @@ Filename::~Filename(void)
 {
 }
 
+Filename::operator const std::string &() const
+{
+	return getOpenpath();
+}
+
+Filename::operator std::string () const
+{
+	return getOpenpath();
+}
+
 Filename &Filename::operator=(const Filename &oSource)
 {
 	return copy(oSource);

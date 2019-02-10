@@ -39,10 +39,14 @@ bool GZFile::open(void)
 {
 	mFilePos = -1;
 	super::open();
-	if((mFileHandle = gzopen(getOpenpath().c_str(), getFileOpenmode().c_str())) == NULL)
+	if ((mFileHandle = gzopen(getOpenpath().c_str(), getFileOpenmode().c_str())) == NULL)
+	{
+		setIsOpen(false);
 		return false;
+	}
 
 	mFilePos = 0;
+	setIsOpen(true);
 
 	return true;
 }

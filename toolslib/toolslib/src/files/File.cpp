@@ -18,7 +18,6 @@ File::File(Filename const &oFilename)
 	: super(oFilename)
 {
 	init();
-	setFilename(oFilename);
 }
 
 void File::init(void)
@@ -83,10 +82,14 @@ bool File::open(void)
 	super::open();
 	mFileHandle = fopen(getOpenpath().c_str(), getFileOpenmode().c_str());
 	if (mFileHandle == NULL)
+	{
+		setIsOpen(false);
 		return false;
+	}
 
 	setvbuf(mFileHandle, getFileBuffer(), _IOFBF, (size_t)getFileBufferSize());
 
+	setIsOpen(true);
 	return true;
 }
 

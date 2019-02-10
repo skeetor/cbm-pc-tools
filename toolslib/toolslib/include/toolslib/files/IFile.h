@@ -84,11 +84,13 @@ public:
 	virtual void flush(void) = 0;
 	virtual bool isEOF(void) const = 0;
 	virtual int64_t read(void *oBuffer, int64_t nLen) = 0;
-	virtual int64_t write(void const *oBuffer, int64_t nLen) = 0;
+	virtual int64_t write(const void *oBuffer, int64_t nLen) = 0;
 	virtual int64_t seek(int64_t nOffset, IFile::seek_pos nPos) = 0;
 	virtual int64_t tell(void) = 0;
 	virtual int64_t length(void) = 0;
 	virtual int getChar(void) = 0;
+
+	virtual bool isOpen(void) const = 0;
 
 	virtual void setFilename(Filename const &oFilename) = 0;
 	virtual const Filename &getFilename(void) const = 0;

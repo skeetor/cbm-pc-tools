@@ -43,6 +43,7 @@
     <ClInclude Include="include\toolslib\files\FilesystemScanner.h" />
     <ClInclude Include="include\toolslib\files\GZFile.h" />
     <ClInclude Include="include\toolslib\files\IFile.h" />
+    <ClInclude Include="include\toolslib\files\MemoryFile.h" />
     <ClInclude Include="include\toolslib\files\ZIPFile.h" />
     <ClInclude Include="include\toolslib\files\ZIPScanner.h" />
     <ClInclude Include="include\toolslib\patterns\event.h" />
@@ -94,6 +95,8 @@
     <ClCompile Include="src\files\Filename.cpp" />
     <ClCompile Include="src\files\FilesystemScanner.cpp" />
     <ClCompile Include="src\files\GZFile.cpp" />
+    <ClCompile Include="src\files\IFile.cpp" />
+    <ClCompile Include="src\files\MemoryFile.cpp" />
     <ClCompile Include="src\files\ZIPFile.cpp" />
     <ClCompile Include="src\files\ZIPScanner.cpp" />
     <ClCompile Include="src\string\Helpers.cpp" />

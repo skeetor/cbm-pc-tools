@@ -157,6 +157,9 @@ public:
 		return mDelimiter;
 	}
 
+	operator const std::string &() const;
+	operator std::string () const;
+
 	Filename &operator=(const Filename &oSource);
 	Filename &copy(const Filename &oSource);
 

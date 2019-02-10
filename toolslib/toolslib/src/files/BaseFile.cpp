@@ -57,6 +57,7 @@ bool BaseFile::open(void)
 	setEOF(false);
 	mFileBufferSize = setFileBufferSize();
 	mFileBuffer = allocateFileBuffer(mFileBufferSize);
+	setIsOpen(true);
 
 	return true;
 }
@@ -65,6 +66,7 @@ void BaseFile::close(void)
 {
 	flush();
 	setEOF(false);
+	setIsOpen(false);
 
 	freeFileBuffer(mFileBuffer);
 }

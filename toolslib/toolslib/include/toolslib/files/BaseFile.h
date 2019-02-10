@@ -12,15 +12,15 @@ namespace files
 {
 
 /**
-	* File handles the access to a file. A basepath can be set, in which case
-	* the file class automatically prepends it to a filename. If the basepath
-	* is not set (NULL), the current directory is assumed. If a full path
-	* or an UNC path is used, then the basepath is ignored.
-	*
-	* Note that, whenever the basepath or the filname is changed and a file
-	* was previously opened, it will be closed. This is also the case, when
-	* the filename would be the same.
-	*/
+ * File handles the access to a file. A basepath can be set, in which case
+ * the file class automatically prepends it to a filename. If the basepath
+ * is not set (NULL), the current directory is assumed. If a full path
+ * or an UNC path is used, then the basepath is ignored.
+ *
+ * Note that, whenever the basepath or the filname is changed and a file
+ * was previously opened, it will be closed. This is also the case, when
+ * the filename would be the same.
+ */
 class TOOLSLIB_API BaseFile
 : public virtual IFile
 {
@@ -32,7 +32,8 @@ public:
 	bool open(open_mode const &oMode) override
 	{
 		setOpenmode(oMode);
-		return open();
+		open();
+		return isOpen();
 	}
 
 	void close(void) override;
@@ -65,6 +66,11 @@ public:
 		mEOF = bEOF;
 	}
 
+	bool isOpen(void) const override
+	{
+		return mIsOpen;
+	}
+
 	/**
 	 * Creates all missing directories of a path for a given file. If no filename
 	 * is given in the path it must end with a terminating '\' character otherwise
@@ -87,12 +93,18 @@ protected:
 		mFileBuffer = oFileBuffer;
 	}
 
+	void setIsOpen(bool bIsOpen = true)
+	{
+		mIsOpen = bIsOpen;
+	}
+
 private:
 	char *mFileBuffer;
 	uint64_t mFileBufferSize;
 	Filename mFilename;
 	IFile::open_mode mOpenmode;
-	bool mEOF;
+	bool mEOF:1;
+	bool mIsOpen:1;
 };
 
 }

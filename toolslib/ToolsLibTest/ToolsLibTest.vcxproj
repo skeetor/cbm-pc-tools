@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestCommandlineParser.cpp" />
+    <ClCompile Include="TestMemoryFile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

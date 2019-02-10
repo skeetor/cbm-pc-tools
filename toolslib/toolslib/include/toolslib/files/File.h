@@ -12,11 +12,11 @@ namespace files
 {
 
 /**
-	* File handles the access to a file.
-	* Note that, whenever the basepath or the filname is changed and a file
-	* was previously opened, it will be closed. This is also the case, when
-	* the filename would be the same.
-	*/
+ * File handles the access to a file.
+ * Note that, whenever the basepath or the filname is changed and a file
+ * was previously opened, it will be closed. This is also the case, when
+ * the filename would be the same.
+ */
 class TOOLSLIB_API File
 : public virtual BaseFile
 {
