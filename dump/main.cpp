@@ -83,6 +83,48 @@ public:
 		}
 	}
 
+	void inputFile(CommandlineParser &oParser, const vector<string> &oArgs)
+	{
+		UNUSED(oParser);
+
+		cout << __func__ << endl;
+	}
+
+	void outputFile(CommandlineParser &oParser, const vector<string> &oArgs)
+	{
+		UNUSED(oParser);
+
+		cout << __func__ << endl;
+	}
+
+	void formatType(CommandlineParser &oParser, const vector<string> &oArgs)
+	{
+		UNUSED(oParser);
+
+		cout << __func__ << endl;
+	}
+
+	void skipOffset(CommandlineParser &oParser, const vector<string> &oArgs)
+	{
+		UNUSED(oParser);
+
+		cout << __func__ << endl;
+	}
+
+	void maxLength(CommandlineParser &oParser, const vector<string> &oArgs)
+	{
+		UNUSED(oParser);
+
+		cout << __func__ << endl;
+	}
+
+	void address(CommandlineParser &oParser, const vector<string> &oArgs)
+	{
+		UNUSED(oParser);
+
+		cout << __func__ << endl;
+	}
+
 	void createCommandlineOptions(CommandlineParser &oParser)
 	{
 		oParser.setHeader(
@@ -97,27 +139,33 @@ public:
 		oParser.addOption("input", "i", "Inputfile")
 			.mandatory()
 			.arguments()
+			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { inputFile(oParser, oOption.values().back()); })
 			;
 
 		oParser.addOption("output", "o", "Outputfile")
 			.mandatory()
 			.arguments()
+			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { outputFile(oParser, oOption.values().back()); })
 			;
 
 		oParser.addOption("type", "t", "Output format")
 			.arguments()
+			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { formatType(oParser, oOption.values().back()); })
 			;
 
 		oParser.addOption("skip", "s", "Skip first N bytes")
 			.arguments()
+			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { skipOffset(oParser, oOption.values().back()); })
 			;
 
 		oParser.addOption("length", "l", "Write only N bytes")
 			.arguments()
+			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { maxLength(oParser, oOption.values().back()); })
 			;
 
 		oParser.addOption("address", "a", "Write first two bytes with address.")
 			.arguments()
+			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { address(oParser, oOption.values().back()); })
 			;
 	}
 
@@ -160,13 +208,13 @@ int main(int argc, char* argv[])
 	if (processor.hasHelp())
 		return 1;
 
-	int ok = processor.status();
-	if (!ok)
-		return ok;
+	int result = processor.status();
+	if (result)
+		return result;
 
-	ok = processor.run();
+	result = processor.run();
 
 	//cc65ByteDump(argv[1], 2, -1);
 
-	return ok;
+	return result;
 }
