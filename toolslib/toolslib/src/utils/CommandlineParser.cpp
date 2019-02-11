@@ -79,7 +79,16 @@ namespace toolslib
 
 		bool CommandlineParser::hasArgument(const string oName) const
 		{
-			return !getArgument(oName).empty();
+			const Option *o = findName(oName);
+			if (o == nullptr)
+				return false;
+
+			const vector<vector<string>>& values = o->values();
+
+			if (values.empty())
+				return false;
+
+			return true;
 		}
 
 		const CommandlineParser::Option *CommandlineParser::findParam(const string& oName) const
@@ -136,7 +145,7 @@ namespace toolslib
 
 			const vector<vector<string>>& values = o->values();
 
-			if (o == nullptr || values.empty() || nIndex >= values.size())
+			if (values.empty() || nIndex >= values.size())
 				throw invalid_argument("Name does not exist!");
 
 			return values[nIndex];
@@ -336,19 +345,22 @@ namespace toolslib
 				current->getLatest().emplace_back(param);
 			}
 
-			// We need to handle the last argument, as this can not be validated inside the loop
-			if ((current == undefined && isStrict()) || !validateOptionParamCount(*current, arg_count))
+			if (args.size() > 0)
 			{
-				mErrorIndex = (uint32_t)param_pos;
-				mErrorParam = cur_param;
-				return false;
-			}
-			else
-			{
-				// Before we switch to the next parameter we now call the handler.
-				Option::param_callback_t callback = current->callback();
-				if (callback)
-					callback(*this, *current);
+				// We need to handle the last argument, as this can not be validated inside the loop
+				if ((current == undefined && isStrict()) || !validateOptionParamCount(*current, arg_count))
+				{
+					mErrorIndex = (uint32_t)param_pos;
+					mErrorParam = cur_param;
+					return false;
+				}
+				else
+				{
+					// Before we switch to the next parameter we now call the handler.
+					Option::param_callback_t callback = current->callback();
+					if (callback)
+						callback(*this, *current);
+				}
 			}
 
 			return true;

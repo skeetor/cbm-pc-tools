@@ -16,6 +16,15 @@ namespace
 	{
 	public:
 		TCommandlineParser() {}
+
+		void SetUp() override
+		{
+			setStrict(true);
+		}
+
+		void TearDown() override
+		{
+		}
 	};
 
 	TEST_F(TCommandlineParser, BasicTests)
@@ -78,6 +87,42 @@ namespace
 		const CommandlineParser::Option &option = options[1];
 		EXPECT_EQ("settings", option.name());
 		EXPECT_EQ("s", option.param());
+	}
+
+	TEST_F(TCommandlineParser, ParamterNotGivenRelaxed)
+	{
+		setStrict(false);
+
+		addOption("enableFeature", "s", "Path to the home directory")
+			.optional();
+		vector<string> args =
+		{
+		};
+
+		EXPECT_TRUE(parse(args));
+		args =
+		{
+			"test"
+		};
+		EXPECT_TRUE(parse(args));
+		EXPECT_FALSE(hasArgument("enableFeature"));
+	}
+
+	TEST_F(TCommandlineParser, ParamterNotGivenStrict)
+	{
+		addOption("enableFeature", "s", "Path to the home directory")
+			.optional();
+		vector<string> args =
+		{
+		};
+
+		EXPECT_TRUE(parse(args));
+		args =
+		{
+			"test"
+		};
+		EXPECT_FALSE(parse(args));
+		EXPECT_FALSE(hasArgument("enableFeature"));
 	}
 
 	TEST_F(TCommandlineParser, ParamterWithNoArgs)
@@ -204,6 +249,7 @@ namespace
 
 	TEST_F(TCommandlineParser, ParamterWithMultipleTooManyStrict)
 	{
+		setStrict(true);
 		addOption("enableFeature", "s", "Path to the home directory")
 			.multiple()
 			.arguments()
