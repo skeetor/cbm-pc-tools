@@ -72,12 +72,6 @@
     <ClInclude Include="include\toolslib\utils\CommandlineParser.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="include\toolslib\utils\EmptyFormatter.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="include\toolslib\utils\Formatter.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
     <ClInclude Include="include\toolslib\toolslib_def.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -171,9 +165,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\utils\CommandlineParser.cpp">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils\EmptyFormatter.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="src\files\BaseFile.cpp">

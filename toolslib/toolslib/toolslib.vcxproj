@@ -54,8 +54,6 @@
     <ClInclude Include="include\toolslib\toolslib_api.h" />
     <ClInclude Include="include\toolslib\toolslib_def.h" />
     <ClInclude Include="include\toolslib\utils\CommandlineParser.h" />
-    <ClInclude Include="include\toolslib\utils\EmptyFormatter.h" />
-    <ClInclude Include="include\toolslib\utils\Formatter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\compression\zlib\adler32.c" />
@@ -102,7 +100,6 @@
     <ClCompile Include="src\string\Helpers.cpp" />
     <ClCompile Include="src\string\Wildcards.cpp" />
     <ClCompile Include="src\utils\CommandlineParser.cpp" />
-    <ClCompile Include="src\utils\EmptyFormatter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\toolslib.nuspec" />
