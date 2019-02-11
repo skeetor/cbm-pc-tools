@@ -55,8 +55,7 @@ bool BaseFile::open(void)
 {
 	close();
 	setEOF(false);
-	mFileBufferSize = setFileBufferSize();
-	mFileBuffer = allocateFileBuffer(mFileBufferSize);
+	allocateFileBuffer(setFileBufferSize());
 	setIsOpen(true);
 
 	return true;

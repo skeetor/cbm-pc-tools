@@ -16,12 +16,30 @@ using namespace std;
 
 File::File(Filename const &oFilename)
 	: super(oFilename)
+	, mDoClose(false)
 {
 	init();
 }
 
+File::File(FILE *oFile, const IFile::open_mode &mode, bool bDoClose)
+{
+	if (oFile)
+	{
+		setOpenmode(mode);
+		setEOF(false);
+		allocateFileBuffer(setFileBufferSize());
+		setIsOpen(true);
+		mDoClose = bDoClose;
+	}
+	else
+		init();
+
+	mFileHandle = oFile;
+}
+
 void File::init(void)
 {
+	mDoClose = false;
 	mFileHandle = NULL;
 	IFile::open_mode md = { false, true };	// read only
 
@@ -30,8 +48,7 @@ void File::init(void)
 
 File::~File(void)
 {
-	if(mFileHandle != NULL)
-		close();
+	super::close();
 }
 
 FILE *File::getFileHandle(void) const
@@ -95,12 +112,17 @@ bool File::open(void)
 
 void File::close(void)
 {
-	flush();
-	super::close();
+	if (mDoClose)
+	{
+		super::close();
 
-	if(mFileHandle)
-		fclose(mFileHandle);
-	mFileHandle = NULL;
+		if (mFileHandle)
+			fclose(mFileHandle);
+
+		mFileHandle = NULL;
+	}
+	else
+		flush();
 }
 
 void File::flush(void)

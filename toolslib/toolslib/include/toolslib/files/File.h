@@ -22,6 +22,14 @@ class TOOLSLIB_API File
 {
 public:
 	File(Filename const &oFilename = "");
+
+	/**
+	 * Take ownership of the specified file. The caller is responsible to
+	 * set the appropriate open mode for proper functionality.
+	 * If DotClose is false, the file will stay open after a close() operation
+	 * or destruction.
+	 */
+	File(FILE *oFile, const IFile::open_mode &mode, bool bDoClose = true);
 	~File(void) override;
 
 	bool open(void) override;
@@ -50,6 +58,7 @@ private:
 
 private:
 	FILE *mFileHandle;
+	bool mDoClose;
 };
 
 }
