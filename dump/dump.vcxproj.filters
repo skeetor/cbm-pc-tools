@@ -13,17 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\lib">
-      <UniqueIdentifier>{f59ef59c-df48-4998-9019-7eddf0185aa1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\lib\utils">
-      <UniqueIdentifier>{cb8d4c97-d645-4588-b516-e4ada4544d52}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\lib">
+    <Filter Include="Source Files\formatter">
       <UniqueIdentifier>{59f7e475-ce56-477a-a116-860ca6ed7b89}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\lib\utils">
-      <UniqueIdentifier>{c8d02c17-cee0-4665-ba80-5cf370156431}</UniqueIdentifier>
+    <Filter Include="Header Files\formatter">
+      <UniqueIdentifier>{f59ef59c-df48-4998-9019-7eddf0185aa1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -34,22 +28,22 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\utils\EmptyFormatter.cpp">
-      <Filter>Source Files\lib\utils</Filter>
+    <ClCompile Include="formatter\CA65Formatter.cpp">
+      <Filter>Source Files\formatter</Filter>
     </ClCompile>
-    <ClCompile Include="ca65Formatter.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="formatter\EmptyFormatter.cpp">
+      <Filter>Source Files\formatter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ca65Formatter.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\formatter\CA65Formatter.h">
+      <Filter>Header Files\formatter</Filter>
     </ClInclude>
-    <ClInclude Include="include\lib\utils\EmptyFormatter.h">
-      <Filter>Header Files\lib\utils</Filter>
+    <ClInclude Include="include\formatter\EmptyFormatter.h">
+      <Filter>Header Files\formatter</Filter>
     </ClInclude>
-    <ClInclude Include="include\lib\utils\Formatter.h">
-      <Filter>Header Files\lib\utils</Filter>
+    <ClInclude Include="include\formatter\Formatter.h">
+      <Filter>Header Files\formatter</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

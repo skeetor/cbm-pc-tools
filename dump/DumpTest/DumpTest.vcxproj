@@ -139,7 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\ca65Formatter.cpp" />
+    <ClCompile Include="..\formatter\CA65Formatter.cpp" />
     <ClCompile Include="DumpTest.cpp" />
     <ClCompile Include="TestCA65Formatter.cpp" />
   </ItemGroup>

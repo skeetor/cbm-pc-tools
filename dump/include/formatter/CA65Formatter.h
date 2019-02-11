@@ -1,7 +1,7 @@
 #ifndef DUMP_CA65FORMATTER_H
 #define DUMP_CA65FORMATTER_H
 
-#include "lib/utils/Formatter.h"
+#include "Formatter.h"
 
 class CA65Formatter
 : public lib::utils::Formatter

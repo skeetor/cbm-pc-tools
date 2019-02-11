@@ -2,7 +2,7 @@
 #include <algorithm>
 
 #include "toolslib/toolslib_def.h"
-#include "lib/utils/EmptyFormatter.h"
+#include "formatter/EmptyFormatter.h"
 
 using namespace std;
 

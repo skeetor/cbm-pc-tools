@@ -11,7 +11,7 @@
 #include "toolslib/utils/CommandlineParser.h"
 #include "toolslib/files/IFile.h"
 
-#include "ca65Formatter.h"
+#include "formatter/CA65Formatter.h"
 
 using namespace std;
 using namespace toolslib;

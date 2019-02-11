@@ -2,7 +2,7 @@
 #include <algorithm>
 
 #include "toolslib/toolslib_def.h"
-#include "ca65Formatter.h"
+#include "formatter/CA65Formatter.h"
 
 using namespace std;
 

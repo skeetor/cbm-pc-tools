@@ -123,8 +123,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ca65Formatter.cpp" />
-    <ClCompile Include="lib\utils\EmptyFormatter.cpp" />
+    <ClCompile Include="formatter\CA65Formatter.cpp" />
+    <ClCompile Include="formatter\EmptyFormatter.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -132,9 +132,9 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ca65Formatter.h" />
-    <ClInclude Include="include\lib\utils\EmptyFormatter.h" />
-    <ClInclude Include="include\lib\utils\Formatter.h" />
+    <ClInclude Include="include\formatter\CA65Formatter.h" />
+    <ClInclude Include="include\formatter\EmptyFormatter.h" />
+    <ClInclude Include="include\formatter\Formatter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

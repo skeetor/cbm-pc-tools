@@ -3,7 +3,7 @@
 
 #include "gtest/gtest.h"
 
-#include "ca65Formatter.h"
+#include "formatter/CA65Formatter.h"
 
 using namespace std;
 using namespace lib::utils;
