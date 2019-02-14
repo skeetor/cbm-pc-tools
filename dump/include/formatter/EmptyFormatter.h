@@ -10,7 +10,7 @@ namespace lib
 {
 	namespace utils
 	{
-		class TOOLSLIB_API EmptyFormatter
+		class EmptyFormatter
 		: public Formatter
 		{
 		public:

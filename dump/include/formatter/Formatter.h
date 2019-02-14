@@ -9,7 +9,7 @@ namespace lib
 {
 	namespace utils
 	{
-		class TOOLSLIB_API Formatter
+		class Formatter
 		{
 		public:
 			virtual ~Formatter() {}

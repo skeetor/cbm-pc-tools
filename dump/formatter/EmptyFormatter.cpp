@@ -25,7 +25,7 @@ namespace lib
 			return true;
 		}
 
-		void reset(void)
+		void EmptyFormatter::reset(void)
 		{
 		}
 	}

@@ -7,11 +7,14 @@
 
 #include <string>
 #include <iostream>
+#include <memory>
 
 #include "toolslib/utils/CommandlineParser.h"
 #include "toolslib/files/IFile.h"
+#include "toolslib/files/File.h"
 
 #include "formatter/CA65Formatter.h"
+#include "formatter/EmptyFormatter.h"
 
 using namespace std;
 using namespace toolslib;
@@ -72,7 +75,16 @@ public:
 	FileProcessor(CommandlineParser &parser, int argc, char *argv[])
 	: m_parser(parser)
 	, m_result(0)
+	, m_startPos(0)
+	, m_maxLen(invalid64_t)
+	, m_curLen(0)
+	, m_formatter(make_unique<EmptyFormatter>())
+	, m_input(new File(stdin, { true, true }, false))
+	, m_output(new File(stdout, { true, true }, false))
 	{
+		m_input->setFilename("stdin");
+		m_output->setFilename("stdout");
+
 		createCommandlineOptions(m_parser);
 
 		if (!m_parser.parse(argc, argv))
@@ -194,8 +206,13 @@ public:
 	}
 
 private:
-	vector<unique_ptr<Formatter>> m_foramtters;
+	unique_ptr<IFile> m_input;
+	unique_ptr<IFile> m_output;
+	unique_ptr<Formatter> m_formatter;
 	int m_result;
+	int64_t m_startPos;
+	int64_t m_maxLen;
+	int64_t m_curLen;
 	CommandlineParser &m_parser;
 };
 
