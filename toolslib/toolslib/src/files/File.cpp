@@ -21,10 +21,11 @@ File::File(Filename const &oFilename)
 	init();
 }
 
-File::File(FILE *oFile, const IFile::open_mode &mode, bool bDoClose)
+File::File(Filename const &oFilename, FILE *oFile, const IFile::open_mode &mode, bool bDoClose)
 {
 	if (oFile)
 	{
+		setFilename(oFilename);
 		setOpenmode(mode);
 		setEOF(false);
 		allocateFileBuffer(setFileBufferSize());

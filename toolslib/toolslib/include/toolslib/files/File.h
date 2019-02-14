@@ -29,7 +29,7 @@ public:
 	 * If DotClose is false, the file will stay open after a close() operation
 	 * or destruction.
 	 */
-	File(FILE *oFile, const IFile::open_mode &mode, bool bDoClose = true);
+	File(Filename const &oFilename, FILE *oFile, const IFile::open_mode &mode, bool bDoClose = true);
 	~File(void) override;
 
 	bool open(void) override;
