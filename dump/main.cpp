@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "toolslib/utils/CommandlineParser.h"
+#include "toolslib/files/FileFactory.h"
 #include "toolslib/files/IFile.h"
 #include "toolslib/files/File.h"
 
@@ -79,12 +80,9 @@ public:
 	, m_maxLen(invalid64_t)
 	, m_curLen(0)
 	, m_formatter(make_unique<EmptyFormatter>())
-	, m_input(new File(stdin, { true, true }, false))
-	, m_output(new File(stdout, { true, true }, false))
+	, m_input(new File("stdin", stdin, { true, true }, false))
+	, m_output(new File("stdout", stdout, { true, true }, false))
 	{
-		m_input->setFilename("stdin");
-		m_output->setFilename("stdout");
-
 		createCommandlineOptions(m_parser);
 
 		if (!m_parser.parse(argc, argv))
@@ -99,7 +97,14 @@ public:
 	{
 		UNUSED(oParser);
 
-		cout << __func__ << endl;
+		Filename fn(oArgs[0]);
+		IFile *file = FileFactory::getInstance()->getFile(fn);
+
+		if (file == nullptr)
+		{
+			cerr << "Uknown filetype:" << fn.getOpenpath() << endl;
+			exit(0);
+		}
 	}
 
 	void outputFile(CommandlineParser &oParser, const vector<string> &oArgs)
@@ -201,6 +206,27 @@ public:
 	{
 		if (m_result)
 			return m_result;
+
+		char buffer[1024];
+
+		while (!m_input->isEOF())
+		{
+			int64_t rd = m_input->read(buffer, 1024);
+			if (rd <= 0)
+			{
+				if (rd < 0)
+					cerr << "Error reading " << m_input->getOpenpath() << endl;
+
+				break;
+			}
+
+			rd = m_output->write(buffer, rd);
+			if (rd < 0)
+			{
+				cerr << "Error writing " << m_input->getOpenpath() << endl;
+				break;
+			}
+		}
 
 		return 0;
 	}
