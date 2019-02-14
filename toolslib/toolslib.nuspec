@@ -2,7 +2,7 @@
 <package  xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>toolslib</id>
-    <version>2019.02.10</version>
+    <version>2019.02.10.1</version>
     <title>Google testframework</title>
     <authors>Gerhard Gruber</authors>
     <owners>Gerhard Gruber sparhawk@gmx.at</owners>

@@ -13,7 +13,6 @@ namespace toolslib
 
 namespace strings
 {
-
 /**
  * Looks if one of the strings from the list is contained in the inputstring. If found, the index
  * in the array is returned and nPosition is set to the index in the inputstring where it starts.

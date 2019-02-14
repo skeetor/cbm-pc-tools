@@ -66,9 +66,11 @@ public:
 	/**
 	 * Return the file object for the given filename. If FileType is set, the object 
 	 * is returned, otherwise the object type is determined automatically.
+	 * If the filetype can not be determined, the default is used.
+	 *
 	 * The file is not opened.
 	 */
-	IFile *getFile(Filename const &oFilename, FileType oFileType = FileFactory::FF_UNKNOWN) const;
+	IFile *getFile(Filename const &oFilename, FileType oFileType = FileFactory::FF_UNKNOWN, FileType oDefault = FileFactory::FF_FILE) const;
 
 	/**
 	 * Identifies and opens the specified file. If the file is not known or can not be opened NULL is returned.

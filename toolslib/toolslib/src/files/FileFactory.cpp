@@ -78,6 +78,7 @@ size_t FileFactory::containerFilename(Filename const &oFilename, string &oContai
  */
 Filename FileFactory::detectFileType(Filename const &oFilename, FileFactory::FileType &nType) const
 {
+	nType = FileFactory::FF_UNKNOWN;
 	Filename fn = oFilename;
 	string cn;
 	size_t i = containerFilename(oFilename, cn);
@@ -127,7 +128,7 @@ IFile *FileFactory::createFileInstance(Filename const &oFilename, FileType oFile
 	return fl;
 }
 
-IFile *FileFactory::getFile(Filename const &oFilename, FileType oFileType) const
+IFile *FileFactory::getFile(Filename const &oFilename, FileType oFileType, FileType oDefault) const
 {
 	FileFactory::FileType type;
 	IFile *fl = NULL;
@@ -136,6 +137,9 @@ IFile *FileFactory::getFile(Filename const &oFilename, FileType oFileType) const
 		fn = detectFileType(oFilename, type);
 	else
 		type = oFileType;
+
+	if (type == FileFactory::FF_UNKNOWN)
+		type = oDefault;
 
 	fl = createFileInstance(fn, type);
 
