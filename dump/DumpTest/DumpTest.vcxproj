@@ -63,27 +63,27 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\BuildPath.props" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\ProjectSettings.props" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\BuildDebug.props" />
+    <Import Project="..\..\..\project-config\properties\BuildPath.props" />
+    <Import Project="..\..\..\project-config\properties\ProjectSettings.props" />
+    <Import Project="..\..\..\project-config\properties\BuildDebug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\BuildPath.props" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\ProjectSettings.props" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\BuildRelease.props" />
+    <Import Project="..\..\..\project-config\properties\BuildPath.props" />
+    <Import Project="..\..\..\project-config\properties\ProjectSettings.props" />
+    <Import Project="..\..\..\project-config\properties\BuildRelease.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\BuildPath.props" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\ProjectSettings.props" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\BuildDebug.props" />
+    <Import Project="..\..\..\project-config\properties\BuildPath.props" />
+    <Import Project="..\..\..\project-config\properties\ProjectSettings.props" />
+    <Import Project="..\..\..\project-config\properties\BuildDebug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\BuildPath.props" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\ProjectSettings.props" />
-    <Import Project="..\..\PackageFiles\ProjectConfig\BuildRelease.props" />
+    <Import Project="..\..\..\project-config\properties\BuildPath.props" />
+    <Import Project="..\..\..\project-config\properties\ProjectSettings.props" />
+    <Import Project="..\..\..\project-config\properties\BuildRelease.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

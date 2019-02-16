@@ -97,6 +97,7 @@ public:
 	{
 		UNUSED(oParser);
 
+<<<<<<< HEAD
 		Filename fn(oArgs[0]);
 		IFile *file = FileFactory::getInstance()->getFile(fn);
 
@@ -110,6 +111,9 @@ public:
 		//pos = file->tell();
 		pos = file->seek(5, IFile::cur);
 		pos = file->seek(0, IFile::cur);
+=======
+		cout << __func__ << endl;
+>>>>>>> 35583b38d77bd4f2aef4ac845afb1a1b1f4c64dc
 	}
 
 	void outputFile(CommandlineParser &oParser, const vector<string> &oArgs)
