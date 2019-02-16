@@ -105,6 +105,11 @@ public:
 			cerr << "Uknown filetype:" << fn.getOpenpath() << endl;
 			exit(0);
 		}
+
+		int64_t pos;
+		//pos = file->tell();
+		pos = file->seek(5, IFile::cur);
+		pos = file->seek(0, IFile::cur);
 	}
 
 	void outputFile(CommandlineParser &oParser, const vector<string> &oArgs)
