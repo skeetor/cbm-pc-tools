@@ -14,6 +14,8 @@
 #include "toolslib/files/IFile.h"
 #include "toolslib/files/File.h"
 
+#include "toolslib/strings/numbers.h"
+
 #include "formatter/CA65Formatter.h"
 #include "formatter/EmptyFormatter.h"
 
@@ -21,6 +23,7 @@ using namespace std;
 using namespace toolslib;
 using namespace toolslib::utils;
 using namespace toolslib::files;
+using namespace toolslib::strings;
 using namespace lib::utils;
 
 size_t cc65ByteDump(string const &filename, size_t start, size_t length)
@@ -70,6 +73,43 @@ size_t cc65ByteDump(string const &filename, size_t start, size_t length)
 	return total;
 }
 
+template <typename T>
+T fromNumber(const char *number, const char *end, const char **scanned)
+{
+	// TODO: Trim string
+
+	if (number >= end)
+		throw invalid_argument("Number is empty");
+
+	size_t len = end - number;
+	if (len == 1)
+		return fromDecimal<T>(number, end, scanned);
+
+	char c = number[2];
+	if (len == 2 && (c == 'x' || c == 'X'))
+		throw invalid_argument("Empty hex string");
+
+	if (*(end - 1) == 'h')
+		return fromHex<T>(number, end-1, scanned);
+
+	if(number[0] == '0' && (c == 'x' || c == 'X'))
+		return fromHex<T>(&number[2], end, scanned);
+
+	if (number[0] == '$')
+		return fromHex<T>(&number[1], end, scanned);
+
+	if(number[0] == '%')
+		return fromBinary<T>(&number[1], end, scanned);
+
+	return fromDecimal<T>(number, end, scanned);
+}
+
+template <typename T>
+T fromNumber(const string& number, const char **scanned)
+{
+	return fromNumber<T>(&number[0], &number[number.size()], scanned);
+}
+
 class FileProcessor
 {
 public:
@@ -80,8 +120,8 @@ public:
 	, m_maxLen(invalid64_t)
 	, m_curLen(0)
 	, m_formatter(make_unique<EmptyFormatter>())
-	, m_input(new File("stdin", stdin, { true, true }, false))
-	, m_output(new File("stdout", stdout, { true, true }, false))
+	, m_input((new File())->setSTDIN(stdin))
+	, m_output((new File())->setSTDOUT(stdout))
 	{
 		createCommandlineOptions(m_parser);
 
@@ -93,10 +133,8 @@ public:
 		}
 	}
 
-	void inputFile(CommandlineParser &oParser, const vector<string> &oArgs)
+	IFile *openFile(const vector<string> &oArgs, const IFile::open_mode &oMode)
 	{
-		UNUSED(oParser);
-
 		Filename fn(oArgs[0]);
 		IFile *file = FileFactory::getInstance()->getFile(fn);
 
@@ -106,17 +144,39 @@ public:
 			exit(0);
 		}
 
-		int64_t pos;
-		//pos = file->tell();
-		pos = file->seek(5, IFile::cur);
-		pos = file->seek(0, IFile::cur);
+		file->setOpenmode(oMode);
+		if (!file->open())
+		{
+			cerr << "Unable to open file:" << file->getOpenpath() << endl;
+			exit(0);
+		}
+
+		return file;
+	}
+
+	void inputFile(CommandlineParser &oParser, const vector<string> &oArgs)
+	{
+		UNUSED(oParser);
+		IFile::open_mode md = { 0 };
+
+		md.read = true;
+		md.binary = true;
+
+		m_input.reset(openFile(oArgs, md));
 	}
 
 	void outputFile(CommandlineParser &oParser, const vector<string> &oArgs)
 	{
 		UNUSED(oParser);
 
-		cout << __func__ << endl;
+		IFile::open_mode md = { 0 };
+
+		md.write = true;
+		md.binary = true;
+		md.truncate = true;
+		md.create = true;
+
+		m_output.reset(openFile(oArgs, md));
 	}
 
 	void formatType(CommandlineParser &oParser, const vector<string> &oArgs)
@@ -130,7 +190,11 @@ public:
 	{
 		UNUSED(oParser);
 
-		cout << __func__ << endl;
+		const string &number = oArgs[0];
+
+		int64_t ofs = fromNumber<int64_t>(number, nullptr);
+		if (ofs != invalid64_t)
+			m_input->seek(ofs, IFile::cur);
 	}
 
 	void maxLength(CommandlineParser &oParser, const vector<string> &oArgs)
@@ -175,7 +239,7 @@ public:
 			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { formatType(oParser, oOption.values().back()); })
 			;
 
-		oParser.addOption("skip", "s", "Skip first N bytes")
+		oParser.addOption("skip", "s", "Skip first N bytes from inputfile")
 			.arguments()
 			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { skipOffset(oParser, oOption.values().back()); })
 			;
