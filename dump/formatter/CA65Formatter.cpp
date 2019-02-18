@@ -18,14 +18,14 @@ bool CA65Formatter::format(const char *oData, int64_t nDataSize, toolslib::files
 {
 	const char *end = oData + nDataSize;
 
-	if (mCurColumn == mColumns)
-		mCurColumn = 0;
-
-	while (oData < end && mCurColumn < mColumns)
+	while (oData < end)
 	{
 		char colon[3] = ", ";
 
-		if (!mCurColumn)
+		if (mCurColumn == mColumns)
+			mCurColumn = 0;
+
+		if (mCurColumn == 0)
 		{
 			if (!mBuffer.empty())
 			{
@@ -33,22 +33,29 @@ bool CA65Formatter::format(const char *oData, int64_t nDataSize, toolslib::files
 					return false;
 			}
 
-			mBuffer = ".byte ";
+			mBuffer = ".byte";
 			colon[0] = 0;
 		}
 
 		char buffer[8] = { 0 };
 
 		sprintf(buffer, "%s%3u", colon, (unsigned int)(*oData++));
-		colon[0] = ',';
 
 		mBuffer += buffer;
+		colon[0] = ',';
+		mCurColumn++;
 	}
 
-	if ((bFlush == true || mCurColumn == mColumns) && !mBuffer.empty())
+	if (bFlush == true || mCurColumn == mColumns)
 	{
-		if ((size_t)oOutput->write(&mBuffer[0], mBuffer.size()) != mBuffer.size())
-			return false;
+		if (mCurColumn == mColumns)
+			mCurColumn = 0;
+
+		if (!mBuffer.empty())
+		{
+			if ((size_t)oOutput->write(&mBuffer[0], mBuffer.size()) != mBuffer.size())
+				return false;
+		}
 	}
 
 	return true;

@@ -23,7 +23,12 @@ namespace
 
 		void SetUp() override
 		{
-			m_file.open();
+			IFile::open_mode md;
+			md.write = true;
+			md.read = true;
+			md.binary = true;
+
+			((IFile &)m_file).open(md);
 		}
 
 		void TearDown() override
@@ -37,8 +42,8 @@ namespace
 	{
 		setColumns(8);
 
-		char buffer[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-		string expected = ".byte 0, 1, 2, 3, 4, 5, 6, 7, 8";
+		char buffer[] = { 0, 1, 2, 3, 4, 5, 6, 7};
+		string expected = ".byte 0, 1, 2, 3, 4, 5, 6, 7";
 		string written;
 
 		bool success = false;
