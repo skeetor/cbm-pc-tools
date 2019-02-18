@@ -3,10 +3,12 @@
 
 #include "gtest/gtest.h"
 
+#include "toolslib/files/MemoryFile.h"
 #include "formatter/CA65Formatter.h"
 
 using namespace std;
-using namespace lib::utils;
+using namespace toolslib;
+using namespace toolslib::files;
 
 namespace
 {
@@ -21,23 +23,31 @@ namespace
 
 		void SetUp() override
 		{
+			m_file.open();
 		}
 
 		void TearDown() override
 		{
 		}
+
+		MemoryFile m_file;
 	};
 
-	TEST_F(TCA65Formatter, BasicTests)
+	TEST_F(TCA65Formatter, DecimalColumnMatch)
 	{
-		setType(ByteType::HEX);
-		EXPECT_EQ(ByteType::HEX, getType());
-		setColumns(16);
-		EXPECT_EQ(16, getColumns());
-
-		setType(ByteType::BIN);
-		EXPECT_EQ(ByteType::BIN, getType());
 		setColumns(8);
-		EXPECT_EQ(8, getColumns());
+
+		char buffer[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+		string expected = ".byte 0, 1, 2, 3, 4, 5, 6, 7, 8";
+		string written;
+
+		bool success = false;
+		EXPECT_NO_THROW((success = format(buffer, sizeof(buffer), &m_file, false)));
+		EXPECT_TRUE(success);
+		EXPECT_EQ(expected.size(), (size_t)m_file.length());
+
+		written.resize(m_file.length());
+		EXPECT_EQ(0, m_file.seek(0, IFile::set));
+		EXPECT_EQ(expected.size(), (size_t)m_file.read(&written[0], written.size()));
 	}
 }

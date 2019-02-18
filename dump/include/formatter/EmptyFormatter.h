@@ -6,22 +6,14 @@
 /**
  * A formatter which does nothing but passing the data through.
  */
-namespace lib
+class EmptyFormatter
+: public Formatter
 {
-	namespace utils
-	{
-		class EmptyFormatter
-		: public Formatter
-		{
-		public:
-			EmptyFormatter() {}
-			~EmptyFormatter() override {}
+public:
+	EmptyFormatter() {}
+	~EmptyFormatter() override {}
 
-			bool format(const std::string &input, std::string &output) override;
-			bool flush(std::string &output) override;
-			void reset(void) override;
-		};
-	}
-}
+	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput, bool bFlush = false) override;
+};
 
 #endif // EMPTY_FORMATTER_H

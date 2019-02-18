@@ -24,7 +24,6 @@ using namespace toolslib;
 using namespace toolslib::utils;
 using namespace toolslib::files;
 using namespace toolslib::strings;
-using namespace lib::utils;
 
 size_t cc65ByteDump(string const &filename, size_t start, size_t length)
 {

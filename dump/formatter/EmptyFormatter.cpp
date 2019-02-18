@@ -6,27 +6,10 @@
 
 using namespace std;
 
-namespace lib
+bool EmptyFormatter::format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput, bool bFlush)
 {
-	namespace utils
-	{
-		bool EmptyFormatter::format(const string &input, string &output)
-		{
-			output.reserve(input.size());
-			copy(input.begin(), input.end(), output.begin());
+	if (oOutput->write(oData, nDataSize) != nDataSize)
+		return false;
 
-			return true;
-		}
-
-		bool EmptyFormatter::flush(string &output)
-		{
-			UNUSED(output);
-
-			return true;
-		}
-
-		void EmptyFormatter::reset(void)
-		{
-		}
-	}
+	return true;
 }

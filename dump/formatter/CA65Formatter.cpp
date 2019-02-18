@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <algorithm>
 
@@ -13,21 +14,42 @@ CA65Formatter::CA65Formatter(ByteType type, uint16_t columns)
 {
 }
 
-bool CA65Formatter::format(const string &input, string &output)
+bool CA65Formatter::format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput, bool bFlush)
 {
-	output.reserve(input.size());
-	copy(input.begin(), input.end(), output.begin());
+	const char *end = oData + nDataSize;
+
+	if (mCurColumn == mColumns)
+		mCurColumn = 0;
+
+	while (oData < end && mCurColumn < mColumns)
+	{
+		char colon[3] = ", ";
+
+		if (!mCurColumn)
+		{
+			if (!mBuffer.empty())
+			{
+				if ((size_t)oOutput->write(&mBuffer[0], mBuffer.size()) != mBuffer.size())
+					return false;
+			}
+
+			mBuffer = ".byte ";
+			colon[0] = 0;
+		}
+
+		char buffer[8] = { 0 };
+
+		sprintf(buffer, "%s%3u", colon, (unsigned int)(*oData++));
+		colon[0] = ',';
+
+		mBuffer += buffer;
+	}
+
+	if ((bFlush == true || mCurColumn == mColumns) && !mBuffer.empty())
+	{
+		if ((size_t)oOutput->write(&mBuffer[0], mBuffer.size()) != mBuffer.size())
+			return false;
+	}
 
 	return true;
-}
-
-bool CA65Formatter::flush(string &output)
-{
-	UNUSED(output);
-
-	return true;
-}
-
-void CA65Formatter::reset(void)
-{
 }

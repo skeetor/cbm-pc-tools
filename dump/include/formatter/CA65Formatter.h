@@ -4,7 +4,7 @@
 #include "Formatter.h"
 
 class CA65Formatter
-: public lib::utils::Formatter
+: public Formatter
 {
 public:
 	typedef enum
@@ -18,9 +18,7 @@ public:
 	CA65Formatter(ByteType type = HEX, uint16_t columns = 16);
 	~CA65Formatter() override {}
 
-	bool format(const std::string &input, std::string &output) override;
-	bool flush(std::string &output) override;
-	void reset(void) override;
+	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput, bool bFlush = false) override;
 
 	ByteType getType(void) const
 	{
@@ -39,6 +37,9 @@ public:
 
 	void setColumns(uint16_t columns)
 	{
+		if (columns == 0)
+			columns = 1;
+
 		mColumns = columns;
 	}
 
@@ -46,6 +47,7 @@ private:
 	ByteType mType;
 	uint16_t mColumns;
 	uint16_t mCurColumn;
+	std::string mBuffer;
 };
 
 #endif // DUMP_CA65FORMATTER_H

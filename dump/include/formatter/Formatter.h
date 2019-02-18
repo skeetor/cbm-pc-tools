@@ -1,35 +1,21 @@
-#ifndef TOOLSLIB_FORMATTER_H
-#define TOOLSLIB_FORMATTER_H
+#ifndef DUMP_FORMATTER_H
+#define DUMP_FORMATTER_H
 
 #include <string>
 
 #include "toolslib/toolslib_api.h"
+#include "toolslib/files/IFile.h"
 
-namespace lib
+class Formatter
 {
-	namespace utils
-	{
-		class Formatter
-		{
-		public:
-			virtual ~Formatter() {}
+public:
+	virtual ~Formatter() {}
 
-			/**
-			 * Formats the input data into the output data.
-			 */
-			virtual bool format(const std::string &input, std::string &output) = 0;
+	/**
+	 * Formats the input data into the output data. If flush is true, the formatter
+	 * should flush everything as the formatter will no longer be called.
+	 */
+	virtual bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput, bool bFlush = false) = 0;
+};
 
-			/**
-			 * Allows to output a possible reamainder of formatted data.
-			 */
-			virtual bool flush(std::string &output) = 0;
-
-			/**
-			  * Resets the formatter to it's original state.
-			  */
-			virtual void reset(void) = 0;
-		};
-	}
-}
-
-#endif // TOOLSLIB_FORMATTER_H
+#endif // DUMP_FORMATTER_H
