@@ -15,9 +15,9 @@ using namespace toolslib::utils;
 
 int main(int argc, char* argv[])
 {
-	CommandlineParser parser;
+	CommandlineParser parser(argc, argv);
 
-	FileProcessor processor(parser, argc, argv);
+	FileProcessor processor(parser);
 
 	if (processor.hasHelp())
 		return 1;

@@ -3,20 +3,20 @@
 #include <algorithm>
 
 #include "toolslib/toolslib_def.h"
-#include "formatter/CA65Formatter.h"
+#include "formatter/DataFormatter.h"
 
 using namespace std;
 using namespace toolslib;
 using namespace toolslib::files;
 
-CA65Formatter::CA65Formatter(ByteType type, uint16_t columns)
+DataFormatter::DataFormatter(ByteType type, uint16_t columns)
 : mType(type)
 , mColumns(columns)
 , mCurColumn(0)
 {
 }
 
-bool CA65Formatter::writeBuffer(toolslib::files::IFile *oOutput)
+bool DataFormatter::writeBuffer(toolslib::files::IFile *oOutput)
 {
 	mCurColumn = 0;
 
@@ -34,7 +34,7 @@ bool CA65Formatter::writeBuffer(toolslib::files::IFile *oOutput)
 	return true;
 }
 
-bool CA65Formatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
+bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 {
 	const char *end = oData + nDataSize;
 
@@ -96,7 +96,7 @@ bool CA65Formatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 	return true;
 }
 
-bool CA65Formatter::flush(IFile *oOutput)
+bool DataFormatter::flush(IFile *oOutput)
 {
 	return writeBuffer(oOutput);
 }

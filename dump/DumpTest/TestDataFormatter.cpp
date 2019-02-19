@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 
 #include "toolslib/files/MemoryFile.h"
-#include "formatter/CA65Formatter.h"
+#include "formatter/DataFormatter.h"
 
 using namespace std;
 using namespace toolslib;
@@ -12,12 +12,12 @@ using namespace toolslib::files;
 
 namespace
 {
-	class TCA65Formatter
+	class TDataFormatter
 	: public ::testing::Test
-	, public CA65Formatter
+	, public DataFormatter
 	{
 	public:
-		TCA65Formatter()
+		TDataFormatter()
 		{
 		}
 
@@ -38,10 +38,10 @@ namespace
 		MemoryFile m_file;
 	};
 
-	TEST_F(TCA65Formatter, DecimalColumnMatch)
+	TEST_F(TDataFormatter, DecimalColumnMatch)
 	{
 		setColumns(4);
-		setType(CA65Formatter::DEC);
+		setType(DataFormatter::DEC);
 
 		char buffer[] = { 0, 1, 2, 3 };
 		string expected = ".byte 0, 1, 2, 3\n";
@@ -58,10 +58,10 @@ namespace
 		EXPECT_EQ(expected, written);
 	}
 
-	TEST_F(TCA65Formatter, DecimalColumnOverlap)
+	TEST_F(TDataFormatter, DecimalColumnOverlap)
 	{
 		setColumns(4);
-		setType(CA65Formatter::DEC);
+		setType(DataFormatter::DEC);
 
 		char buffer[] = { 0, 1, 2, 3, 4};
 		string expected = ".byte 0, 1, 2, 3\n.byte 4\n";
@@ -80,10 +80,10 @@ namespace
 		EXPECT_EQ(expected, written);
 	}
 
-	TEST_F(TCA65Formatter, DecimalColumnRandom)
+	TEST_F(TDataFormatter, DecimalColumnRandom)
 	{
 		setColumns(4);
-		setType(CA65Formatter::DEC);
+		setType(DataFormatter::DEC);
 
 		char buffer[] = { 0, 1, 2, 3, 4 };
 		string expected = ".byte 0, 1, 2, 3\n.byte 4\n";
@@ -116,10 +116,10 @@ namespace
 #pragma warning(push)
 #pragma warning(disable: 4310 )
 
-	TEST_F(TCA65Formatter, DecimalColumnMultiple)
+	TEST_F(TDataFormatter, DecimalColumnMultiple)
 	{
 		setColumns(4);
-		setType(CA65Formatter::DEC);
+		setType(DataFormatter::DEC);
 
 		char buffer[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, (char)0xff };
 		string expected = ".byte 0, 1, 2, 3\n.byte 4, 5, 6, 7\n.byte 8, 9, 10, 11\n.byte 12, 255\n";

@@ -1,9 +1,9 @@
-#ifndef DUMP_CA65FORMATTER_H
-#define DUMP_CA65FORMATTER_H
+#ifndef DUMP_DATAFORMATTER_H
+#define DUMP_DATAFORMATTER_H
 
 #include "Formatter.h"
 
-class CA65Formatter
+class DataFormatter
 : public Formatter
 {
 public:
@@ -18,8 +18,8 @@ public:
 	} ByteType;
 
 public:
-	CA65Formatter(ByteType type = HEX_CBM, uint16_t columns = 16);
-	~CA65Formatter() override {}
+	DataFormatter(ByteType type = HEX_CBM, uint16_t columns = 16);
+	~DataFormatter() override {}
 
 	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
 	bool flush(toolslib::files::IFile *oOutput) override;
@@ -58,4 +58,4 @@ private:
 	std::string mBuffer;
 };
 
-#endif // DUMP_CA65FORMATTER_H
+#endif // DUMP_DATAFORMATTER_H

@@ -10,7 +10,7 @@
 #include "toolslib/files/FileFactory.h"
 #include "toolslib/files/File.h"
 
-#include "formatter/CA65Formatter.h"
+#include "formatter/DataFormatter.h"
 #include "formatter/EmptyFormatter.h"
 
 #include "dump.h"
@@ -21,7 +21,7 @@ using namespace toolslib::utils;
 using namespace toolslib::files;
 using namespace toolslib::strings;
 
-FileProcessor::FileProcessor(CommandlineParser &parser, int argc, char *argv[])
+FileProcessor::FileProcessor(CommandlineParser &parser)
 : m_parser(parser)
 , m_result(0)
 , m_startPos(0)
@@ -33,7 +33,7 @@ FileProcessor::FileProcessor(CommandlineParser &parser, int argc, char *argv[])
 {
 	createCommandlineOptions(m_parser);
 
-	if (!m_parser.parse(argc, argv))
+	if (!m_parser.parse())
 	{
 		uint32_t error = parser.getErrorIndex();
 		cerr << "Error with parameter '" << parser.getErrorParam() << "' at position " << to_string(error) << endl;
@@ -97,11 +97,22 @@ void FileProcessor::outputFile(CommandlineParser &oParser, const vector<string> 
 	m_output.reset(openFile(oArgs, md));
 }
 
+bool FileProcessor::parseData(const std::vector<std::string> &oArgs)
+{
+	return false;
+}
+
 void FileProcessor::formatType(CommandlineParser &oParser, const vector<string> &oArgs)
 {
 	UNUSED(oParser);
 
-	cout << __func__ << endl;
+	const string &formatter = oArgs[0];
+
+	if (formatter == "data")
+	{
+		if (!parseData(oArgs))
+			exit(1);
+	}
 }
 
 void FileProcessor::skipOffset(CommandlineParser &oParser, const vector<string> &oArgs)
@@ -152,9 +163,15 @@ void FileProcessor::createCommandlineOptions(CommandlineParser &oParser)
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { outputFile(oParser, oOption.values().back()); })
 		;
 
-	oParser.addOption("type", "t", "Output format")
-		.arguments()
-		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { formatType(oParser, oOption.values().back()); })
+	oParser.addOption("format", "f",
+				"Output format\n"
+				"	data [<columns>] [dec|bin|hex [cbm(default)|asm|c] [<prefix>(default=\".byte\")]\n"
+				"       <columns> = number of columns per line\n"
+				"       cbm = '$a2', asm = '0a2h', c = '0xa2'\n"
+				"       <prefix> = user defined string, default is '.byte'"
+			)
+			.arguments(1, 5)
+			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { formatType(oParser, oOption.values().back()); })
 		;
 
 	oParser.addOption("skip", "s", "Skip first N bytes from inputfile")

@@ -139,9 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\formatter\CA65Formatter.cpp" />
-    <ClCompile Include="DumpTest.cpp" />
-    <ClCompile Include="TestCA65Formatter.cpp" />
+    <ClCompile Include="..\dump.cpp" />
+    <ClCompile Include="..\formatter\DataFormatter.cpp" />
+    <ClCompile Include="..\formatter\EmptyFormatter.cpp" />
+    <ClCompile Include="TestDump.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="TestDataFormatter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

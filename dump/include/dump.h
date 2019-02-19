@@ -53,7 +53,7 @@ T fromNumber(const std::string& number, const char **scanned)
 class FileProcessor
 {
 public:
-	FileProcessor(toolslib::utils::CommandlineParser &parser, int argc, char *argv[]);
+	FileProcessor(toolslib::utils::CommandlineParser &parser);
 	virtual ~FileProcessor();
 
 	bool hasHelp(void);
@@ -71,6 +71,8 @@ protected:
 	void maxLength(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
 	void address(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
 	void createCommandlineOptions(toolslib::utils::CommandlineParser &oParser);
+
+	bool parseData(const std::vector<std::string> &oArgs);
 
 private:
 	std::unique_ptr<toolslib::files::IFile> m_input;
