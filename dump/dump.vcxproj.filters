@@ -34,6 +34,9 @@
     <ClCompile Include="formatter\EmptyFormatter.cpp">
       <Filter>Source Files\formatter</Filter>
     </ClCompile>
+    <ClCompile Include="dump.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\formatter\CA65Formatter.h">
@@ -44,6 +47,9 @@
     </ClInclude>
     <ClInclude Include="include\formatter\Formatter.h">
       <Filter>Header Files\formatter</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dump.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dump.cpp" />
     <ClCompile Include="formatter\CA65Formatter.cpp" />
     <ClCompile Include="formatter\EmptyFormatter.cpp" />
     <ClCompile Include="main.cpp" />
@@ -132,6 +133,7 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\dump.h" />
     <ClInclude Include="include\formatter\CA65Formatter.h" />
     <ClInclude Include="include\formatter\EmptyFormatter.h" />
     <ClInclude Include="include\formatter\Formatter.h" />
