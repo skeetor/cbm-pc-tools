@@ -6,6 +6,8 @@
 #include "formatter/CA65Formatter.h"
 
 using namespace std;
+using namespace toolslib;
+using namespace toolslib::files;
 
 CA65Formatter::CA65Formatter(ByteType type, uint16_t columns)
 : mType(type)
@@ -14,7 +16,25 @@ CA65Formatter::CA65Formatter(ByteType type, uint16_t columns)
 {
 }
 
-bool CA65Formatter::format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput, bool bFlush)
+bool CA65Formatter::writeBuffer(toolslib::files::IFile *oOutput)
+{
+	mCurColumn = 0;
+
+	bool rc = true;
+
+	if (!mBuffer.empty())
+	{
+		mBuffer += '\n';
+		if ((size_t)oOutput->write(&mBuffer[0], mBuffer.size()) != mBuffer.size())
+			rc = false;
+	}
+
+	mBuffer = "";
+
+	return true;
+}
+
+bool CA65Formatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 {
 	const char *end = oData + nDataSize;
 
@@ -27,36 +47,43 @@ bool CA65Formatter::format(const char *oData, int64_t nDataSize, toolslib::files
 
 		if (mCurColumn == 0)
 		{
-			if (!mBuffer.empty())
-			{
-				if ((size_t)oOutput->write(&mBuffer[0], mBuffer.size()) != mBuffer.size())
-					return false;
-			}
+			if (!writeBuffer(oOutput))
+				return false;
 
-			mBuffer = ".byte";
+			mBuffer = ".byte ";
 			colon[0] = 0;
 		}
 
-		char buffer[8] = { 0 };
+		char buffer[12] = { 0 };
 
-		sprintf(buffer, "%s%3u", colon, (unsigned int)(*oData++));
+		if (mType == DEC)
+			sprintf(buffer, "%s%u", colon, (unsigned int)(*oData++) & 0xff);
+		else if (mType == HEX)
+			sprintf(buffer, "%s%02x", colon, (unsigned int)(*oData++) & 0xff);
+		else if (mType == BIN)
+		{
+			sprintf(buffer, "%s%02x", colon, (unsigned int)(*(oData++)) & 0xff);
+		}
+		else
+			return false;
 
 		mBuffer += buffer;
 		colon[0] = ',';
 		mCurColumn++;
 	}
 
-	if (bFlush == true || mCurColumn == mColumns)
+	if (mCurColumn == mColumns)
 	{
 		if (mCurColumn == mColumns)
 			mCurColumn = 0;
 
-		if (!mBuffer.empty())
-		{
-			if ((size_t)oOutput->write(&mBuffer[0], mBuffer.size()) != mBuffer.size())
-				return false;
-		}
+		return writeBuffer(oOutput);
 	}
 
 	return true;
+}
+
+bool CA65Formatter::flush(IFile *oOutput)
+{
+	return writeBuffer(oOutput);
 }

@@ -13,7 +13,8 @@ public:
 	EmptyFormatter() {}
 	~EmptyFormatter() override {}
 
-	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput, bool bFlush = false) override;
+	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
+	bool flush(toolslib::files::IFile *oOutput) override;
 };
 
 #endif // EMPTY_FORMATTER_H

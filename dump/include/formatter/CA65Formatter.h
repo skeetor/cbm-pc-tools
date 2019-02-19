@@ -18,8 +18,10 @@ public:
 	CA65Formatter(ByteType type = HEX, uint16_t columns = 16);
 	~CA65Formatter() override {}
 
-	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput, bool bFlush = false) override;
+	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
+	bool flush(toolslib::files::IFile *oOutput) override;
 
+public:
 	ByteType getType(void) const
 	{
 		return mType;
@@ -42,6 +44,9 @@ public:
 
 		mColumns = columns;
 	}
+
+protected:
+	bool writeBuffer(toolslib::files::IFile *oOutput);
 
 private:
 	ByteType mType;

@@ -15,7 +15,9 @@ public:
 	 * Formats the input data into the output data. If flush is true, the formatter
 	 * should flush everything as the formatter will no longer be called.
 	 */
-	virtual bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput, bool bFlush = false) = 0;
+	virtual bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) = 0;
+
+	virtual bool flush(toolslib::files::IFile *oOutput) = 0;
 };
 
 #endif // DUMP_FORMATTER_H
