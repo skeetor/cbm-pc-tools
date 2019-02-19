@@ -58,8 +58,21 @@ bool CA65Formatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 
 		if (mType == DEC)
 			sprintf(buffer, "%s%u", colon, (unsigned int)(*oData++) & 0xff);
-		else if (mType == HEX)
-			sprintf(buffer, "%s%02x", colon, (unsigned int)(*oData++) & 0xff);
+		else if (mType == HEX_CBM)
+			sprintf(buffer, "%s$%02x", colon, (unsigned int)(*oData++) & 0xff);
+		else if (mType == HEX_ASM)
+		{
+			char value[4] = { 0 };
+			unsigned int c = *((unsigned char *)oData);
+			oData++;
+			sprintf(value, "%xh", c & 0xff);
+			if (isalpha(value[0]))
+				sprintf(buffer, "%s0%s", colon, value);
+			else
+				strcpy(buffer, value);
+		}
+		else if (mType == HEX_C)
+			sprintf(buffer, "%s0x%02x", colon, (unsigned int)(*oData++) & 0xff);
 		else if (mType == BIN)
 		{
 			sprintf(buffer, "%s%02x", colon, (unsigned int)(*(oData++)) & 0xff);

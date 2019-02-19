@@ -9,13 +9,16 @@ class CA65Formatter
 public:
 	typedef enum
 	{
-		HEX,
 		DEC,
-		BIN
+		BIN,
+		HEX_CBM,			// $ae
+		HEX_ASM,			// 0aeh, 12h
+		HEX_C,				// 0xae
+
 	} ByteType;
 
 public:
-	CA65Formatter(ByteType type = HEX, uint16_t columns = 16);
+	CA65Formatter(ByteType type = HEX_CBM, uint16_t columns = 16);
 	~CA65Formatter() override {}
 
 	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
