@@ -18,6 +18,16 @@ public:
 	virtual bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) = 0;
 
 	virtual bool flush(toolslib::files::IFile *oOutput) = 0;
+
+	/**
+	 * Reset the formatter if in case it should be reused.
+	 */
+	virtual bool init(void) = 0;
+
+	/**
+	 * Called when the formatter is done with. init() may be called to reuse it.
+	 */
+	virtual bool finalize(toolslib::files::IFile *oOutput) = 0;
 };
 
 #endif // DUMP_FORMATTER_H

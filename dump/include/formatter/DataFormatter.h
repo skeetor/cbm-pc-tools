@@ -18,11 +18,13 @@ public:
 	} ByteType;
 
 public:
-	DataFormatter(ByteType type = HEX_CBM, uint16_t columns = 16);
+	DataFormatter(ByteType type = HEX_CBM, uint16_t columns = 16, const std::string &lineprefix = ".byte", const std::string &header = "", const std::string &postfix = "");
 	~DataFormatter() override {}
 
 	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
 	bool flush(toolslib::files::IFile *oOutput) override;
+	bool init(void) override;
+	bool finalize(toolslib::files::IFile *oOutput) override;
 
 public:
 	ByteType getType(void) const
@@ -56,6 +58,10 @@ private:
 	uint16_t mColumns;
 	uint16_t mCurColumn;
 	std::string mBuffer;
+	std::string mHeader;
+	std::string mLinePrefix;
+	std::string mPostfix;
+	bool mAddHeader;
 };
 
 #endif // DUMP_DATAFORMATTER_H

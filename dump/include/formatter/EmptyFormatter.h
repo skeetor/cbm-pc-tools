@@ -14,7 +14,9 @@ public:
 	~EmptyFormatter() override {}
 
 	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
-	bool flush(toolslib::files::IFile *oOutput) override;
+	bool flush(toolslib::files::IFile *oOutput) override { UNUSED(oOutput); return true;  }
+	bool init(void) override { return true; }
+	bool finalize(toolslib::files::IFile *oOutput) override { UNUSED(oOutput); return true; }
 };
 
 #endif // EMPTY_FORMATTER_H

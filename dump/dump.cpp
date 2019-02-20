@@ -45,16 +45,16 @@ FileProcessor::~FileProcessor(void)
 {
 }
 
-toolslib::files::IFile *FileProcessor::createFile(const std::string &oFilename)
+unique_ptr<IFile> FileProcessor::createFile(const std::string &oFilename)
 {
 	Filename fn(oFilename);
-	return FileFactory::getInstance()->getFile(fn);
+	return unique_ptr<IFile>(FileFactory::getInstance()->getFile(fn));
 }
 
-IFile *FileProcessor::openFile(const vector<string> &oArgs, const IFile::open_mode &oMode)
+unique_ptr<IFile> FileProcessor::openFile(const vector<string> &oArgs, const IFile::open_mode &oMode)
 {
 	const string &fn(oArgs[0]);
-	IFile *file = createFile(fn);
+	unique_ptr<IFile> file = createFile(fn);
 
 	if (file == nullptr)
 	{
@@ -80,7 +80,7 @@ void FileProcessor::inputFile(CommandlineParser &oParser, const vector<string> &
 	md.read = true;
 	md.binary = true;
 
-	m_input.reset(openFile(oArgs, md));
+	m_input = openFile(oArgs, md);
 }
 
 void FileProcessor::outputFile(CommandlineParser &oParser, const vector<string> &oArgs)
@@ -94,7 +94,7 @@ void FileProcessor::outputFile(CommandlineParser &oParser, const vector<string> 
 	md.truncate = true;
 	md.create = true;
 
-	m_output.reset(openFile(oArgs, md));
+	m_output = openFile(oArgs, md);
 }
 
 bool FileProcessor::parseData(const std::vector<std::string> &oArgs)
@@ -163,12 +163,15 @@ void FileProcessor::createCommandlineOptions(CommandlineParser &oParser)
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { outputFile(oParser, oOption.values().back()); })
 		;
 
-	oParser.addOption("format", "f",
-				"Output format\n"
-				"	data [<columns>] [dec|bin|hex [cbm(default)|asm|c] [<prefix>(default=\".byte\")]\n"
-				"       <columns> = number of columns per line\n"
-				"       cbm = '$a2', asm = '0a2h', c = '0xa2'\n"
-				"       <prefix> = user defined string, default is '.byte'"
+	oParser.addOption("type", "t",
+R"(Output format type
+	data [<columns>] [dec|bin|hex [cbm(default)|asm|c] [<lineprefix>(default=".byte") <header> <postfix>]
+       <columns> = number of columns per line
+       cbm = '$a2', asm = '0a2h', c = '0xa2'
+       <lineprefix> = user defined string, default is '.byte')
+       <header> = printed first (optional)
+       <postfix> = added after the last line (optional)
+)"
 			)
 			.arguments(1, 5)
 			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { formatType(oParser, oOption.values().back()); })

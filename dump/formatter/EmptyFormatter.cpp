@@ -15,10 +15,3 @@ bool EmptyFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput
 
 	return true;
 }
-
-bool EmptyFormatter::flush(IFile *oOutput)
-{
-	UNUSED(oOutput);
-
-	return true;
-}

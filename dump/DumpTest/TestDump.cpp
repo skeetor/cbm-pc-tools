@@ -1,6 +1,3 @@
-#define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
-#define _CRT_SECURE_NO_WARNINGS
-
 #include "gtest/gtest.h"
 
 #include "toolslib/files/MemoryFile.h"
@@ -10,6 +7,7 @@
 using namespace std;
 using namespace toolslib;
 using namespace toolslib::files;
+using namespace toolslib::utils;
 
 namespace
 {
@@ -17,14 +15,14 @@ namespace
 	: public virtual FileProcessor
 	{
 	public:
-		TFileProcessor(toolslib::utils::CommandlineParser &parser)
+		TFileProcessor(CommandlineParser &parser)
 		: FileProcessor(parser)
 		{
 		}
 
-		toolslib::files::IFile *createFile(const std::string &oFilename) override
+		unique_ptr<IFile> createFile(const std::string &oFilename) override
 		{
-			return new MemoryFile(oFilename);
+			return make_unique<MemoryFile>(oFilename);
 		}
 	};
 
@@ -47,7 +45,14 @@ namespace
 		unique_ptr<FileProcessor> m_dump;
 	};
 
-	TEST_F(TDump, Base)
+	TEST_F(TDump, SimpleCopy)
 	{
+		vector<string> arguments =
+		{
+			"-i", "input", "-o", "output"
+		};
+
+		CommandlineParser parser(arguments);
+
 	}
 }

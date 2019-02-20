@@ -61,9 +61,9 @@ public:
 	int status(void);
 
 protected:
-	virtual toolslib::files::IFile *createFile(const std::string &oFilename);
+	virtual std::unique_ptr<toolslib::files::IFile> createFile(const std::string &oFilename);
 
-	toolslib::files::IFile *openFile(const std::vector<std::string> &oArgs, const toolslib::files::IFile::open_mode &oMode);
+	std::unique_ptr<toolslib::files::IFile> openFile(const std::vector<std::string> &oArgs, const toolslib::files::IFile::open_mode &oMode);
 	void inputFile(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
 	void outputFile(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
 	void formatType(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);

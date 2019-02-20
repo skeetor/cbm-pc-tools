@@ -9,10 +9,14 @@ using namespace std;
 using namespace toolslib;
 using namespace toolslib::files;
 
-DataFormatter::DataFormatter(ByteType type, uint16_t columns)
+DataFormatter::DataFormatter(ByteType type, uint16_t columns, const std::string &linePrefix, const std::string &header, const std::string &postfix)
 : mType(type)
 , mColumns(columns)
 , mCurColumn(0)
+, mLinePrefix(linePrefix)
+, mHeader(header)
+, mPostfix(postfix)
+, mAddHeader(true)
 {
 }
 
@@ -47,6 +51,12 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 
 		if (mCurColumn == 0)
 		{
+			if (mAddHeader)
+			{
+				mAddHeader = false;
+				mBuffer = mHeader;
+			}
+
 			if (!writeBuffer(oOutput))
 				return false;
 
@@ -94,6 +104,19 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 	}
 
 	return true;
+}
+bool DataFormatter::init(void)
+{
+	mCurColumn = 0;
+	mAddHeader = true;
+
+	return true;
+}
+
+bool DataFormatter::finalize(toolslib::files::IFile *oOutput)
+{
+	mBuffer = mPostfix;
+	return writeBuffer(oOutput);
 }
 
 bool DataFormatter::flush(IFile *oOutput)
