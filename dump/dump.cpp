@@ -32,13 +32,6 @@ FileProcessor::FileProcessor(CommandlineParser &parser)
 , m_output((new File())->setSTDOUT(stdout))
 {
 	createCommandlineOptions(m_parser);
-
-	if (!m_parser.parse())
-	{
-		uint32_t error = parser.getErrorIndex();
-		cerr << "Error with parameter '" << parser.getErrorParam() << "' at position " << to_string(error) << endl;
-		m_result = -1;
-	}
 }
 
 FileProcessor::~FileProcessor(void)
@@ -148,7 +141,7 @@ void FileProcessor::createCommandlineOptions(CommandlineParser &oParser)
 	);
 
 	oParser.addOption("help", "", "Print help")
-		.arguments()
+		.arguments(0, 0)
 		;
 
 	oParser.addOption("input", "i", "Inputfile")
@@ -211,6 +204,13 @@ int FileProcessor::status(void)
 
 int FileProcessor::run(void)
 {
+	if (!m_parser.parse())
+	{
+		uint32_t error = m_parser.getErrorIndex();
+		cerr << "Error with parameter '" << m_parser.getErrorParam() << "' at position " << to_string(error) << endl;
+		m_result = -1;
+	}
+
 	if (m_result)
 		return m_result;
 

@@ -45,14 +45,35 @@ namespace
 		unique_ptr<FileProcessor> m_dump;
 	};
 
+	TEST_F(TDump, NoArguments)
+	{
+		vector<string> arguments =
+		{
+			"TEST.EXE"
+		};
+
+		CommandlineParser parser(arguments);
+		TFileProcessor processor(parser);
+
+		int result = 0xAAAAAAAA;
+		EXPECT_NO_THROW((result = processor.run()));
+		EXPECT_EQ(-1, result);
+	}
+
+	/**
+	 * Simply copy a file without any processing.
+	 */
 	TEST_F(TDump, SimpleCopy)
 	{
 		vector<string> arguments =
 		{
-			"-i", "input", "-o", "output"
+			"TEST.EXE", "-i", "input", "-o", "output"
 		};
 
 		CommandlineParser parser(arguments);
+		TFileProcessor processor(parser);
 
+		int result = 0xAAAAAAAA;
+		EXPECT_NO_THROW((result = processor.run()));
 	}
 }
