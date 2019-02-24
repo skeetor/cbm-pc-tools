@@ -13,43 +13,31 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\formatter">
-      <UniqueIdentifier>{59f7e475-ce56-477a-a116-860ca6ed7b89}</UniqueIdentifier>
+    <Filter Include="Source Files\AppSrc">
+      <UniqueIdentifier>{e84428d5-d473-4ada-ac38-171e1988912c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\formatter">
-      <UniqueIdentifier>{f59ef59c-df48-4998-9019-7eddf0185aa1}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="README.md" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="formatter\EmptyFormatter.cpp">
-      <Filter>Source Files\formatter</Filter>
+    <ClCompile Include="..\dump.cpp">
+      <Filter>Source Files\AppSrc</Filter>
     </ClCompile>
-    <ClCompile Include="dump.cpp">
+    <ClCompile Include="TestDump.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="formatter\DataFormatter.cpp">
-      <Filter>Source Files\formatter</Filter>
+    <ClCompile Include="..\formatter\DataFormatter.cpp">
+      <Filter>Source Files\AppSrc</Filter>
+    </ClCompile>
+    <ClCompile Include="TestDataFormatter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\formatter\EmptyFormatter.cpp">
+      <Filter>Source Files\AppSrc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\formatter\EmptyFormatter.h">
-      <Filter>Header Files\formatter</Filter>
-    </ClInclude>
-    <ClInclude Include="include\formatter\Formatter.h">
-      <Filter>Header Files\formatter</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dump.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\formatter\DataFormatter.h">
-      <Filter>Header Files\formatter</Filter>
-    </ClInclude>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
