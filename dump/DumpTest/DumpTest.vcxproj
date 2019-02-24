@@ -152,13 +152,13 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\gtest.2019.1.30\build\native\gtest.targets" Condition="Exists('..\packages\gtest.2019.1.30\build\native\gtest.targets')" />
-    <Import Project="..\packages\toolslib.2019.2.10.1\build\native\toolslib.targets" Condition="Exists('..\packages\toolslib.2019.2.10.1\build\native\toolslib.targets')" />
+    <Import Project="..\packages\toolslib.2019.2.24\build\native\toolslib.targets" Condition="Exists('..\packages\toolslib.2019.2.24\build\native\toolslib.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\gtest.2019.1.30\build\native\gtest.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\gtest.2019.1.30\build\native\gtest.targets'))" />
-    <Error Condition="!Exists('..\packages\toolslib.2019.2.10.1\build\native\toolslib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\toolslib.2019.2.10.1\build\native\toolslib.targets'))" />
+    <Error Condition="!Exists('..\packages\toolslib.2019.2.24\build\native\toolslib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\toolslib.2019.2.24\build\native\toolslib.targets'))" />
   </Target>
 </Project>

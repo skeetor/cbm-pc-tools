@@ -10,6 +10,7 @@ public:
 	typedef enum
 	{
 		DEC,
+		DEC_SIGNED,
 		BIN,
 		HEX_CBM,			// $ae
 		HEX_ASM,			// 0aeh, 12h
@@ -18,7 +19,7 @@ public:
 	} ByteType;
 
 public:
-	DataFormatter(ByteType type = HEX_CBM, uint16_t columns = 16, const std::string &lineprefix = ".byte", const std::string &header = "", const std::string &postfix = "");
+	DataFormatter(ByteType type = HEX_CBM, uint16_t columns = 16, const std::string &lineprefix = ".byte ", const std::string &header = "", const std::string &postfix = "");
 	~DataFormatter() override {}
 
 	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
@@ -48,6 +49,36 @@ public:
 			columns = 1;
 
 		mColumns = columns;
+	}
+
+	void setHeader(const std::string &oHeader)
+	{
+		mHeader = oHeader;
+	}
+
+	std::string getHeader(void) const
+	{
+		return mHeader;
+	}
+
+	void setLinePrefix(const std::string &oLinePrefix)
+	{
+		mLinePrefix = oLinePrefix;
+	}
+
+	std::string getLinePrefix(void) const
+	{
+		return mLinePrefix;
+	}
+
+	void setPostfix(const std::string &oPostfix)
+	{
+		mPostfix = oPostfix;
+	}
+
+	std::string getPostfix(void) const
+	{
+		return mPostfix;
 	}
 
 protected:

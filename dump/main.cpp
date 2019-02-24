@@ -3,6 +3,8 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <iostream>
+
 #include <stdio.h>
 
 #include "dump.h"
@@ -15,18 +17,33 @@ using namespace toolslib::utils;
 
 int main(int argc, char* argv[])
 {
-	CommandlineParser parser(argc, argv);
+	int result = 0;
 
-	FileProcessor processor(parser);
+	try
+	{
+		CommandlineParser parser(argc, argv);
 
-	if (processor.hasHelp())
-		return 1;
+		FileProcessor processor(parser);
 
-	int result = processor.status();
-	if (result)
-		return result;
+		if (processor.hasHelp())
+			return 1;
 
-	result = processor.run();
+		result = processor.status();
+		if (result)
+			return result;
+
+		result = processor.run();
+	}
+	catch (runtime_error &ex)
+	{
+		cerr << "Exception: " << ex.what() << endl;
+		result = 10;
+	}
+	catch(...)
+	{
+		cerr << "Unknown exception!" << endl;
+		result = 10;
+	}
 
 	return result;
 }

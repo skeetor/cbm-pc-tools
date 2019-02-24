@@ -20,7 +20,7 @@ DataFormatter::DataFormatter(ByteType type, uint16_t columns, const std::string 
 {
 }
 
-bool DataFormatter::writeBuffer(toolslib::files::IFile *oOutput)
+bool DataFormatter::writeBuffer(IFile *oOutput)
 {
 	mCurColumn = 0;
 
@@ -60,7 +60,7 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 			if (!writeBuffer(oOutput))
 				return false;
 
-			mBuffer = ".byte ";
+			mBuffer = getLinePrefix();
 			colon[0] = 0;
 		}
 
@@ -68,6 +68,8 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 
 		if (mType == DEC)
 			sprintf(buffer, "%s%u", colon, (unsigned int)(*oData++) & 0xff);
+		else if (mType == DEC_SIGNED)
+			sprintf(buffer, "%s%d", colon, (*oData++) & 0xff);
 		else if (mType == HEX_CBM)
 			sprintf(buffer, "%s$%02x", colon, (unsigned int)(*oData++) & 0xff);
 		else if (mType == HEX_ASM)
@@ -75,11 +77,11 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 			char value[4] = { 0 };
 			unsigned int c = *((unsigned char *)oData);
 			oData++;
-			sprintf(value, "%xh", c & 0xff);
+			sprintf(value, "%02xh", c & 0xff);
 			if (isalpha(value[0]))
 				sprintf(buffer, "%s0%s", colon, value);
 			else
-				strcpy(buffer, value);
+				sprintf(buffer, "%s%s", colon, value);
 		}
 		else if (mType == HEX_C)
 			sprintf(buffer, "%s0x%02x", colon, (unsigned int)(*oData++) & 0xff);
@@ -113,9 +115,9 @@ bool DataFormatter::init(void)
 	return true;
 }
 
-bool DataFormatter::finalize(toolslib::files::IFile *oOutput)
+bool DataFormatter::finalize(IFile *oOutput)
 {
-	mBuffer = mPostfix;
+	mBuffer += mPostfix;
 	return writeBuffer(oOutput);
 }
 

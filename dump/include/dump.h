@@ -60,6 +60,8 @@ public:
 	int run(void);
 	int status(void);
 
+	std::string toString(const std::vector<std::string> &strings) const;
+
 protected:
 	virtual std::unique_ptr<toolslib::files::IFile> createFile(const std::string &oFilename);
 
@@ -69,19 +71,17 @@ protected:
 	void formatType(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
 	void skipOffset(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
 	void maxLength(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void address(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
+	void writeData(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
 	void createCommandlineOptions(toolslib::utils::CommandlineParser &oParser);
 
-	bool parseData(const std::vector<std::string> &oArgs);
+	void parseData(const std::vector<std::string> &oArgs);
 
 private:
-	std::unique_ptr<toolslib::files::IFile> m_input;
 	std::unique_ptr<toolslib::files::IFile> m_output;
 	std::unique_ptr<Formatter> m_formatter;
 	int m_result;
 	int64_t m_startPos;
 	int64_t m_maxLen;
-	int64_t m_curLen;
 	toolslib::utils::CommandlineParser &m_parser;
 };
 
