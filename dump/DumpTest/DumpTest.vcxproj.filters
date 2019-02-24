@@ -36,6 +36,9 @@
     <ClCompile Include="..\formatter\EmptyFormatter.cpp">
       <Filter>Source Files\AppSrc</Filter>
     </ClCompile>
+    <ClCompile Include="..\formatter\HexdumpFormatter.cpp">
+      <Filter>Source Files\AppSrc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

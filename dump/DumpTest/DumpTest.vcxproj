@@ -142,6 +142,7 @@
     <ClCompile Include="..\dump.cpp" />
     <ClCompile Include="..\formatter\DataFormatter.cpp" />
     <ClCompile Include="..\formatter\EmptyFormatter.cpp" />
+    <ClCompile Include="..\formatter\HexdumpFormatter.cpp" />
     <ClCompile Include="TestDump.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestDataFormatter.cpp" />

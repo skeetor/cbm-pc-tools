@@ -16,10 +16,11 @@ public:
 		HEX_ASM,			// 0aeh, 12h
 		HEX_C,				// 0xae
 
+		TYPE_INVALID
 	} ByteType;
 
 public:
-	DataFormatter(ByteType type = HEX_CBM, uint16_t columns = 16, const std::string &lineprefix = ".byte ", const std::string &header = "", const std::string &postfix = "");
+	DataFormatter(ByteType type = HEX_CBM, uint16_t columns = 16, const std::string &lineprefix = ".byte ", const std::string &header = "", const std::string &postfix = "", char columnPrefix = ',');
 	~DataFormatter() override {}
 
 	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
@@ -81,6 +82,16 @@ public:
 		return mPostfix;
 	}
 
+	void setColumnPrefix(char oColumnPrefix)
+	{
+		mColumnPrefix = oColumnPrefix;
+	}
+
+	char getColumnPrefix(void) const
+	{
+		return mColumnPrefix;
+	}
+
 protected:
 	bool writeBuffer(toolslib::files::IFile *oOutput);
 
@@ -92,7 +103,8 @@ private:
 	std::string mHeader;
 	std::string mLinePrefix;
 	std::string mPostfix;
-	bool mAddHeader;
+	char mColumnPrefix;
+	bool mAddHeader:1;
 };
 
 #endif // DUMP_DATAFORMATTER_H
