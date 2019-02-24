@@ -420,7 +420,7 @@ R"($00 $7f $80 $ff $30 $31 $32 $33 $45
 				)
 			)
 
-			// Hex dump Version 1 using only columns via the data formatter
+			// Hex dump 
 			, TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-t", "xd", "16", "hex", "-i", "input" }

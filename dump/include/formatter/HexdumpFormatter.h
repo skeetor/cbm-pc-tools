@@ -10,10 +10,7 @@ public:
 	HexdumpFormatter(DataFormatter::ByteType type = HEX_CBM, uint16_t columns = 16, bool bShowAscii = true, bool bPetsci = false);
 	~HexdumpFormatter() override {}
 
-	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
-	bool flush(toolslib::files::IFile *oOutput) override;
 	bool init(void) override;
-	bool finalize(toolslib::files::IFile *oOutput) override;
 
 public:
 	void setShowAscii(bool bShowAscii)
@@ -36,10 +33,15 @@ public:
 		return mPetsci;
 	}
 
+protected:
+	bool writeBuffer(toolslib::files::IFile *oOutput, char nNewline = '\n') override;
+	bool addToBuffer(const char *oData, const char *oEnd) override;
+
 private:
 	typedef DataFormatter super;
 
 private:
+	std::string mBuffer;
 	bool mShowAscii : 1;
 	bool mPetsci : 1;		// PETSCI format if true, otherwise ASCII
 };

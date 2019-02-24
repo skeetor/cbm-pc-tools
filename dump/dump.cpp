@@ -406,7 +406,7 @@ R"(Output format type
        <header> = printed first (optional)
        <postfix> = added after the last line (optional)
        <column separator> = added after the last line (optional)
-    xd [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [ascii=default|petsci|off]
+    xd [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [ascii=default|screen|petsci|off]
 )"
 			)
 			.arguments(1, 7)

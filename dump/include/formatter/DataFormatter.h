@@ -93,7 +93,9 @@ public:
 	}
 
 protected:
-	bool writeBuffer(toolslib::files::IFile *oOutput);
+	bool writeBuffer(std::string &buffer, toolslib::files::IFile *oOutput, char nNewline = '\n');
+	virtual bool writeBuffer(toolslib::files::IFile *oOutput, char nNewline = '\n');
+	virtual bool addToBuffer(const char *oData, const char *oEnd);
 
 private:
 	ByteType mType;
@@ -103,6 +105,7 @@ private:
 	std::string mHeader;
 	std::string mLinePrefix;
 	std::string mPostfix;
+	char mColon[3];
 	char mColumnPrefix;
 	bool mAddHeader:1;
 };
