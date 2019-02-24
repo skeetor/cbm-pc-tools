@@ -37,6 +37,9 @@
     <ClCompile Include="formatter\DataFormatter.cpp">
       <Filter>Source Files\formatter</Filter>
     </ClCompile>
+    <ClCompile Include="formatter\HexdumpFormatter.cpp">
+      <Filter>Source Files\formatter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\formatter\EmptyFormatter.h">
@@ -49,6 +52,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\formatter\DataFormatter.h">
+      <Filter>Header Files\formatter</Filter>
+    </ClInclude>
+    <ClInclude Include="include\formatter\HexdumpFormatter.h">
       <Filter>Header Files\formatter</Filter>
     </ClInclude>
   </ItemGroup>

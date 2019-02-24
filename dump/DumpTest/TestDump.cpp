@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "gtest/gtest.h"
 
 #include "toolslib/files/MemoryFile.h"
@@ -12,22 +14,35 @@ using namespace toolslib::utils;
 namespace
 {
 	template <typename T>
-	size_t cmpVector(const vector<T> &first, const vector<T> &second)
+	size_t cmpVector(const vector<T> &first, const vector<T> &second, string &msg)
 	{
 		size_t index = 0;
 		while (index < first.size())
 		{
 			if (index >= second.size())
+			{
+				msg = "Size missmatch: " + to_string(first.size()) + " > " + to_string(second.size());
 				return index;
+			}
 
 			if (first[index] != second[index])
+			{
+				char v1[4] = { 0 };
+				char v2[4] = { 0 };
+				sprintf(v1, "$%02x", first[index] & 0xff);
+				sprintf(v2, "$%02x", second[index] & 0xff);
+				msg = "Comparison misssmatch at [" + to_string(index) + "] " + v1 + " != " + v2;
 				return index;
+			}
 
 			index++;
 		}
 
 		if (second.size() > index)
+		{
+			msg = "Size missmatch: " + to_string(first.size()) + " < " + to_string(second.size());
 			return index;
+		}
 
 		return (size_t)-1;
 	}
@@ -303,36 +318,118 @@ namespace
 				,   { 0x00, 0xc0, 0x80, 0xff, 0x30, 0x31, 0x41, 0x42 }
 			)
 
+			// Copy the the last four bytes and then append another file.
+			// Since the length is greater then the input file, the output is
+			// the remainder of the input file.
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-w", "16", "$c000", "-s", "2", "-l", "8", "-i", "input", "input", }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31 },  { 0x41, 0x42 } }
+				, { 0x00, 0xc0, 0x80, 0xff, 0x30, 0x31, 0x41, 0x42 }
+			)
+
 			// Hex dump with default settings (8 columns, cbm hex)
 			,TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-t", "data", "8", "hex", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
-				, TestParameter::stringToVector(
+				, TestParameter::stringToVector
+				(
 R"(.byte $00, $7f, $80, $ff, $30, $31, $32, $33
 .byte $45
-)")
+)"				)
 			)
+
 			// Hex dump in assembler format (0xxh) with a label
 			,TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-t", "data", "8", "hex=asm", ".byte ", "MyLabel:", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x45 } }
-				, TestParameter::stringToVector(
+				, TestParameter::stringToVector
+				(
 R"(MyLabel:
 .byte 00h, 7fh, 80h, 0ffh, 30h, 31h, 45h
-)")
+)"				)
 			)
+
 			// Dump in C syntax including the variable header
 			,TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-t", "data", "8", "hex=c", "", "const char mybuffer[] = {", "};", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33 } }
-				, TestParameter::stringToVector(
+				, TestParameter::stringToVector
+				(
 R"(const char mybuffer[] = {
 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33
 };
-)")
+)"				)
+			)
+
+			// Dec dump, 7 columns unsigned
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-t", "data", "7", "dec", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(.byte 0, 127, 128, 255, 48, 49, 50
+.byte 51, 69
+)"
+				)
+			)
+
+			// Dec dump, 7 columns unsigned
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-t", "data", "7", "dec=signed", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x81, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(.byte 0, 127, -128, -1, -127, 49, 50
+.byte 51, 69
+)"
+				)
+			)
+
+			// Bin dump
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-t", "data", "1", "bin", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0xaa, 0x55 } }
+				, TestParameter::stringToVector
+				(
+R"(.byte %00000000
+.byte %01111111
+.byte %10000000
+.byte %11111111
+.byte %10101010
+.byte %01010101
+)"
+				)
+			)
+
+			// Hex dump Version 1 using only columns via the data formatter
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-t", "data", "16", "hex", "", "", "", "", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"($00 $7f $80 $ff $30 $31 $32 $33 $45
+)"
+				)
+			)
+
+			// Hex dump Version 1 using only columns via the data formatter
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-t", "xd", "16", "hex", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"($00 $7f $80 $ff $30 $31 $32 $33 $45                             ....0123E
+)"
+				)
 			)
 		)
 	);
@@ -352,7 +449,8 @@ R"(const char mybuffer[] = {
 		vector<uint8_t> outData;
 		EXPECT_NO_THROW((outData = processor.readOutputFile()));
 		size_t index = 0;
-		EXPECT_EQ((size_t)-1, (index = cmpVector(params.expectedData, outData))) << "Params: " << processor.toString(params.commandLine);
+		string cmpmsg;
+		EXPECT_EQ((size_t)-1, (index = cmpVector(params.expectedData, outData, cmpmsg))) << "Params: " << processor.toString(params.commandLine) << "\n" << cmpmsg;
 		EXPECT_EQ((size_t)-1, index);
 	}
 }

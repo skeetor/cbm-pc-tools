@@ -9,7 +9,24 @@ using namespace std;
 using namespace toolslib;
 using namespace toolslib::files;
 
-DataFormatter::DataFormatter(ByteType type, uint16_t columns, const std::string &linePrefix, const std::string &header, const std::string &postfix)
+
+namespace
+{
+	void toBinary(char *str, const char *end, uint8_t value)
+	{
+		for (int i = 0; i < 8 && str < end; i++)
+		{
+			char c = (value >> 7 & 1) + '0';
+			value <<= 1;
+			*str++ = c;
+		}
+
+		if (str < end)
+			*str = 0;
+	}
+}
+
+DataFormatter::DataFormatter(ByteType type, uint16_t columns, const std::string &linePrefix, const std::string &header, const std::string &postfix, char columnPrefix)
 : mType(type)
 , mColumns(columns)
 , mCurColumn(0)
@@ -17,6 +34,7 @@ DataFormatter::DataFormatter(ByteType type, uint16_t columns, const std::string 
 , mHeader(header)
 , mPostfix(postfix)
 , mAddHeader(true)
+, mColumnPrefix(columnPrefix)
 {
 }
 
@@ -45,6 +63,12 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 	while (oData < end)
 	{
 		char colon[3] = ", ";
+		colon[0] = getColumnPrefix();
+		if (colon[0] == 0)
+		{
+			colon[0] = ' ';
+			colon[1] = 0;
+		}
 
 		if (mCurColumn == mColumns)
 			mCurColumn = 0;
@@ -65,35 +89,36 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 		}
 
 		char buffer[12] = { 0 };
+		char c = *oData;
+		unsigned char uc = *oData++;
 
 		if (mType == DEC)
-			sprintf(buffer, "%s%u", colon, (unsigned int)(*oData++) & 0xff);
+			sprintf(buffer, "%s%u", colon, (unsigned int)(uc) & 0xff);
 		else if (mType == DEC_SIGNED)
-			sprintf(buffer, "%s%d", colon, (*oData++) & 0xff);
+			sprintf(buffer, "%s%d", colon, c);
 		else if (mType == HEX_CBM)
-			sprintf(buffer, "%s$%02x", colon, (unsigned int)(*oData++) & 0xff);
+			sprintf(buffer, "%s$%02x", colon, (unsigned int)(uc) & 0xff);
 		else if (mType == HEX_ASM)
 		{
 			char value[4] = { 0 };
-			unsigned int c = *((unsigned char *)oData);
-			oData++;
-			sprintf(value, "%02xh", c & 0xff);
+			sprintf(value, "%02xh", (unsigned int)(uc) & 0xff);
 			if (isalpha(value[0]))
 				sprintf(buffer, "%s0%s", colon, value);
 			else
 				sprintf(buffer, "%s%s", colon, value);
 		}
 		else if (mType == HEX_C)
-			sprintf(buffer, "%s0x%02x", colon, (unsigned int)(*oData++) & 0xff);
+			sprintf(buffer, "%s0x%02x", colon, (unsigned int)(uc) & 0xff);
 		else if (mType == BIN)
 		{
-			sprintf(buffer, "%s%02x", colon, (unsigned int)(*(oData++)) & 0xff);
+			buffer[0] = '%';
+			toBinary(&buffer[1], buffer + sizeof(buffer) - 2, uc);
 		}
 		else
 			return false;
 
 		mBuffer += buffer;
-		colon[0] = ',';
+		colon[0] = getColumnPrefix();
 		mCurColumn++;
 	}
 

@@ -45,8 +45,11 @@ T fromNumber(const char *number, const char *end, const char **scanned)
 }
 
 template <typename T>
-T fromNumber(const std::string& number, const char **scanned)
+T fromNumber(const std::string& number, const char **scanned, bool bAllowChar = true)
 {
+	if (bAllowChar && (number.size() == 3 && number[0] == '\'' && number[2] == '\''))
+		return (T)number[1];
+
 	return fromNumber<T>(&number[0], &number[number.size()], scanned);
 }
 
@@ -65,7 +68,7 @@ public:
 protected:
 	virtual std::unique_ptr<toolslib::files::IFile> createFile(const std::string &oFilename);
 
-	std::unique_ptr<toolslib::files::IFile> openFile(const std::vector<std::string> &oArgs, const toolslib::files::IFile::open_mode &oMode);
+	std::unique_ptr<toolslib::files::IFile> openFile(const std::string &oArgs, const toolslib::files::IFile::open_mode &oMode);
 	void inputFile(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
 	void outputFile(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
 	void formatType(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
@@ -75,6 +78,10 @@ protected:
 	void createCommandlineOptions(toolslib::utils::CommandlineParser &oParser);
 
 	void parseData(const std::vector<std::string> &oArgs);
+	void parseHexdump(const std::vector<std::string> &oArgs);
+
+	int parseByteType(std::string format);
+	uint16_t parseColumn(const std::string &value, const std::vector<std::string> &oArgs);
 
 private:
 	std::unique_ptr<toolslib::files::IFile> m_output;

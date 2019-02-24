@@ -11,6 +11,7 @@
 #include "toolslib/files/File.h"
 
 #include "formatter/DataFormatter.h"
+#include "formatter/HexdumpFormatter.h"
 #include "formatter/EmptyFormatter.h"
 
 #include "dump.h"
@@ -64,7 +65,7 @@ FileProcessor::~FileProcessor(void)
 {
 }
 
-unique_ptr<IFile> FileProcessor::createFile(const std::string &oFilename)
+unique_ptr<IFile> FileProcessor::createFile(const string &oFilename)
 {
 	Filename fn(oFilename);
 	return unique_ptr<IFile>(FileFactory::getInstance()->getFile(fn));
@@ -84,9 +85,9 @@ string FileProcessor::toString(const vector<string> &strings) const
 	return rc;
 }
 
-unique_ptr<IFile> FileProcessor::openFile(const vector<string> &oArgs, const IFile::open_mode &oMode)
+unique_ptr<IFile> FileProcessor::openFile(const string &oFilename, const IFile::open_mode &oMode)
 {
-	const string &fn(oArgs[0]);
+	const string &fn(oFilename);
 	unique_ptr<IFile> file = createFile(fn);
 
 	if (file == nullptr)
@@ -109,46 +110,47 @@ void FileProcessor::inputFile(CommandlineParser &oParser, const vector<string> &
 {
 	UNUSED(oParser);
 
-	IFile::open_mode md = { 0 };
-	
-	md.read = true;
-	md.binary = true;
-
-	unique_ptr<IFile> input = openFile(oArgs, md);
-	char buffer[4096];
-
-	int64_t start = m_startPos;
-	int64_t totalLen = m_maxLen;
-
-	m_maxLen = -1;
-	m_startPos = invalid64_t;
-
-	if (start != invalid64_t)
-		input->seek(start, IFile::cur);
-
-	int64_t bufferLen = sizeof(buffer);
-	while (!input->isEOF())
+	for (const string &filename : oArgs)
 	{
-		if (totalLen != invalid64_t && totalLen < bufferLen)
-			bufferLen = totalLen;
+		IFile::open_mode md = { 0 };
 
-		int64_t rd = input->read(buffer, bufferLen);
-		if (rd <= 0)
+		md.read = true;
+		md.binary = true;
+
+		unique_ptr<IFile> input = openFile(filename, md);
+		char buffer[4096];
+
+		int64_t start = m_startPos;
+		int64_t totalLen = m_maxLen;
+
+		m_maxLen = -1;
+		m_startPos = invalid64_t;
+
+		if (start != invalid64_t)
+			input->seek(start, IFile::cur);
+
+		int64_t bufferLen = sizeof(buffer);
+		while (!input->isEOF())
 		{
-			if (rd < 0)
+			if (totalLen != invalid64_t && totalLen < bufferLen)
+				bufferLen = totalLen;
+
+			int64_t rd = input->read(buffer, bufferLen);
+			if (rd <= 0)
 			{
-				string msg = "Error reading " + input->getOpenpath();
-				throw runtime_error(msg);
+				if (rd < 0)
+				{
+					string msg = "Error reading " + input->getOpenpath();
+					throw runtime_error(msg);
+				}
+				break;
 			}
-			break;
+
+			totalLen -= rd;
+
+			m_formatter->format(buffer, rd, m_output.get());
 		}
-
-		totalLen -= rd;
-
-		m_formatter->format(buffer, rd, m_output.get());
 	}
-
-	m_formatter->finalize(m_output.get());
 }
 
 void FileProcessor::outputFile(CommandlineParser &oParser, const vector<string> &oArgs)
@@ -162,12 +164,64 @@ void FileProcessor::outputFile(CommandlineParser &oParser, const vector<string> 
 	md.truncate = true;
 	md.create = true;
 
-	m_output = openFile(oArgs, md);
+	m_output = openFile(oArgs[0], md);
+}
+
+int FileProcessor::parseByteType(string param)
+{
+	string format;
+
+	size_t pos = param.find('=');
+	if (pos != string::npos)
+	{
+		format = param.substr(0, pos);
+		param.erase(0, pos + 1);
+	}
+	else
+	{
+		format = param;
+		param = "";
+	}
+
+	if (format == "dec")
+	{
+		if (param.empty() || param == "unsigned")
+			return DataFormatter::DEC;
+		else if (param == "signed")
+			return DataFormatter::DEC_SIGNED;
+	}
+	else if (format == "bin")
+		return DataFormatter::BIN;
+	else if (format == "hex")
+	{
+		if (param.empty() || param == "cbm")
+			return DataFormatter::HEX_CBM;
+		else if (param == "asm")
+			return DataFormatter::HEX_ASM;
+		else if (param == "c")
+			return DataFormatter::HEX_C;
+	}
+
+	return DataFormatter::TYPE_INVALID;
+}
+
+uint16_t FileProcessor::parseColumn(const string &value, const vector<string> &oArgs)
+{
+	if (value.empty())
+	{
+		string msg = "Invalid format: " + toString(oArgs);
+		throw runtime_error(msg);
+	}
+
+	if (isdigit(value[0]))
+		return fromNumber<uint16_t>(value, nullptr, false);
+
+	return (uint16_t)-1;
 }
 
 void FileProcessor::parseData(const vector<string> &oArgs)
 {
-	m_formatter->finalize(m_output.get());
+	m_formatter->flush(m_output.get());
 
 	DataFormatter *formatter = new DataFormatter();
 	m_formatter.reset(formatter);
@@ -175,57 +229,23 @@ void FileProcessor::parseData(const vector<string> &oArgs)
 	size_t i = 1;
 	string v = oArgs[i];
 
-	if (v.empty())
+	uint16_t columns;
+	if((columns = parseColumn(v, oArgs)) != (uint16_t)-1)
+		formatter->setColumns(columns);
+
+	i++;
+	if (i >= oArgs.size())
+		return;
+
+	v = oArgs[i];
+
+	DataFormatter::ByteType type;
+	if ((type = (DataFormatter::ByteType)parseByteType(v)) != DataFormatter::TYPE_INVALID)
+		formatter->setType(type);
+	else
 	{
 		string msg = "Invalid format: " + toString(oArgs);
 		throw runtime_error(msg);
-	}
-
-	if (isdigit(v[0]))
-	{
-		uint16_t columns = fromNumber<uint16_t>(v, nullptr);
-		formatter->setColumns(columns);
-		i++;
-		if (i >= oArgs.size())
-			return;
-
-		v = oArgs[i];
-	}
-
-	if (v == "dec")
-		formatter->setType(DataFormatter::DEC);
-	else if (v == "bin")
-		formatter->setType(DataFormatter::BIN);
-	else
-	{
-		string format;
-
-		size_t pos = v.find('=');
-		if (pos != string::npos)
-		{
-			format = v.substr(0, pos);
-			v.erase(0, pos+1);
-		}
-		else
-			format = v;
-
-		// 	data [<columns>] [dec|bin|hex[=cbm(default)|asm|c] [<lineprefix>(default=".byte") <header> <postfix>]
-		if (format == "hex")
-		{
-			if(v.empty() || v == "cbm")
-				formatter->setType(DataFormatter::HEX_CBM);
-			else if (v == "asm")
-				formatter->setType(DataFormatter::HEX_ASM);
-			else if (v == "c")
-				formatter->setType(DataFormatter::HEX_C);
-			else
-				formatter->setType(DataFormatter::HEX_CBM);
-		}
-		else
-		{
-			string msg = "Invalid format: " + toString(oArgs);
-			throw runtime_error(msg);
-		}
 	}
 
 	i++;
@@ -245,6 +265,37 @@ void FileProcessor::parseData(const vector<string> &oArgs)
 		return;
 
 	formatter->setPostfix(oArgs[i]);
+
+	i++;
+	if (i >= oArgs.size())
+		return;
+
+	char c = 0;
+	if (oArgs[i].size() > 0)
+		c = oArgs[i][0];
+
+	formatter->setColumnPrefix(c);
+}
+
+void FileProcessor::parseHexdump(const vector<string> &oArgs)
+{
+	m_formatter->flush(m_output.get());
+
+	HexdumpFormatter *formatter = new HexdumpFormatter();
+	m_formatter.reset(formatter);
+
+	size_t i = 1;
+	string v = oArgs[i];
+
+	uint16_t columns;
+	if ((columns = parseColumn(v, oArgs)) != (uint16_t)-1)
+		formatter->setColumns(columns);
+
+	i++;
+	if (i >= oArgs.size())
+		return;
+
+	v = oArgs[i];
 }
 
 void FileProcessor::formatType(CommandlineParser &oParser, const vector<string> &oArgs)
@@ -255,6 +306,8 @@ void FileProcessor::formatType(CommandlineParser &oParser, const vector<string> 
 
 	if (formatter == "data")
 		parseData(oArgs);
+	else if (formatter == "xd")
+		parseHexdump(oArgs);
 	else
 	{
 		string msg = "Unknown type: " + toString(oArgs);
@@ -268,7 +321,7 @@ void FileProcessor::skipOffset(CommandlineParser &oParser, const vector<string> 
 
 	const string &number = oArgs[0];
 
-	m_startPos = fromNumber<int64_t>(number, nullptr);
+	m_startPos = fromNumber<int64_t>(number, nullptr, false);
 }
 
 void FileProcessor::maxLength(CommandlineParser &oParser, const vector<string> &oArgs)
@@ -277,7 +330,7 @@ void FileProcessor::maxLength(CommandlineParser &oParser, const vector<string> &
 
 	const string &number = oArgs[0];
 
-	m_maxLen = fromNumber<int64_t>(number, nullptr);
+	m_maxLen = fromNumber<int64_t>(number, nullptr, false);
 }
 
 void FileProcessor::writeData(CommandlineParser &oParser, const vector<string> &oArgs)
@@ -287,7 +340,7 @@ void FileProcessor::writeData(CommandlineParser &oParser, const vector<string> &
 	const string &number = oArgs[0];
 	if (isdigit(number[0]))
 	{
-		uint16_t bitness = fromNumber<uint16_t>(number, nullptr);
+		uint16_t bitness = fromNumber<uint16_t>(number, nullptr, false);
 		switch (bitness)
 		{
 			case 8:
@@ -334,7 +387,7 @@ void FileProcessor::createCommandlineOptions(CommandlineParser &oParser)
 	oParser.addOption("input", "i", "Inputfile")
 		.multiple()
 		.mandatory()
-		.arguments()
+		.arguments(1, CommandlineParser::UNLIMITED_ARGS)
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { inputFile(oParser, oOption.values().back()); })
 		;
 
@@ -346,15 +399,17 @@ void FileProcessor::createCommandlineOptions(CommandlineParser &oParser)
 
 	oParser.addOption("type", "t",
 R"(Output format type
-	data [<columns>] [dec|bin|hex[=cbm(default)|asm|c] [<lineprefix>(default=".byte") <header> <postfix>]
+    data [<columns>] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [<lineprefix>(default=".byte") <header> <postfix> <column separator>]
        <columns> = number of columns per line
        cbm = '$a2', asm = '0a2h', c = '0xa2'
        <lineprefix> = user defined string, default is '.byte')
        <header> = printed first (optional)
        <postfix> = added after the last line (optional)
+       <column separator> = added after the last line (optional)
+    xd [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [ascii=default|petsci|off]
 )"
 			)
-			.arguments(1, 6)
+			.arguments(1, 7)
 			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { formatType(oParser, oOption.values().back()); })
 		;
 
@@ -370,9 +425,9 @@ R"(Output format type
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { maxLength(oParser, oOption.values().back()); })
 		;
 
-	oParser.addOption("write", "w", "Write custom data. First value is 8,16,32,64 to specify the bitness or a filename")
+	oParser.addOption("write", "w", "Write custom data. First value may be 8,16,32,64 to specify the bitness or a filename")
 		.multiple()
-		.arguments(2, CommandlineParser::UNLIMITED_ARGS)
+		.arguments(1, CommandlineParser::UNLIMITED_ARGS)
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { writeData(oParser, oOption.values().back()); })
 		;
 }
@@ -402,6 +457,9 @@ int FileProcessor::run(void)
 		string msg = "Error with parameter '" + m_parser.getErrorParam() + "' at position " + to_string(error);
 		throw runtime_error(msg);
 	}
+
+	m_formatter->finalize(m_output.get());
+	m_output->close();
 
 	if (m_result)
 		return m_result;
