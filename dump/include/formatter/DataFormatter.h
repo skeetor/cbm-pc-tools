@@ -67,7 +67,7 @@ public:
 		mLinePrefix = oLinePrefix;
 	}
 
-	std::string getLinePrefix(void) const
+	virtual std::string getLinePrefix(void) const
 	{
 		return mLinePrefix;
 	}
@@ -87,7 +87,7 @@ public:
 		mColumnPrefix = oColumnPrefix;
 	}
 
-	char getColumnPrefix(void) const
+	virtual char getColumnPrefix(void) const
 	{
 		return mColumnPrefix;
 	}
@@ -95,7 +95,12 @@ public:
 protected:
 	bool writeBuffer(std::string &buffer, toolslib::files::IFile *oOutput, char nNewline = '\n');
 	virtual bool writeBuffer(toolslib::files::IFile *oOutput, char nNewline = '\n');
-	virtual bool addToBuffer(const char *oData, const char *oEnd);
+	virtual bool createColumnValue(const char *oData, const char *oEnd, std::string &oColumnValue);
+
+	uint16_t getCurColumn(void) const
+	{
+		return mCurColumn;
+	}
 
 private:
 	ByteType mType;
@@ -105,7 +110,6 @@ private:
 	std::string mHeader;
 	std::string mLinePrefix;
 	std::string mPostfix;
-	char mColon[3];
 	char mColumnPrefix;
 	bool mAddHeader:1;
 };

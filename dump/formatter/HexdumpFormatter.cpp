@@ -9,18 +9,48 @@ using namespace std;
 using namespace toolslib;
 using namespace toolslib::files;
 
- HexdumpFormatter::HexdumpFormatter(DataFormatter::ByteType type, uint16_t columns, bool bShowAscii, bool bPetsci)
+ HexdumpFormatter::HexdumpFormatter(DataFormatter::ByteType type, uint16_t columns, int nAdressSize, CharMode nCharMode)
 : DataFormatter(type, columns, "", "", "", 0)
-, mShowAscii(bShowAscii)
-, mPetsci(bPetsci)
+, mAddress(0)
+, mAddressSize(nAdressSize)
+, mCharMode(nCharMode)
 {
 }
 
 bool HexdumpFormatter::init(void)
 {
 	mBuffer = "";
+	mAddress = 0;
 
 	return super::init();
+}
+
+std::string HexdumpFormatter::getLinePrefix(void) const
+{
+	string address;
+	address.resize(24);
+	address[0] = 0;
+	int64_t len = 0;
+
+	switch (mAddressSize)
+	{
+	case 16:
+		mAddress &= 0xffff;
+		len = sprintf(&address[0], "%04.4X: ", (unsigned int)mAddress);
+		break;
+
+	case 32:
+		mAddress &= 0xffffffff;
+		len = sprintf(&address[0], "%08.8X: ", (unsigned int)mAddress);
+		break;
+
+	case 64:
+		len = sprintf(&address[0], "%016.16llX: ", mAddress);
+		break;
+	}
+	address.resize(len);
+
+	return address;
 }
 
 bool HexdumpFormatter::writeBuffer(IFile *oOutput, char nNewline)
@@ -28,39 +58,44 @@ bool HexdumpFormatter::writeBuffer(IFile *oOutput, char nNewline)
 	if (super::writeBuffer(oOutput, 0) == false)
 		return false;
 
-	if (!mBuffer.empty())
+	if (mBuffer.empty())
+		return true;
+
+	// Space is always a column separator
+	uint16_t charcolumns = 1;
+
+	if (getColumnPrefix() != 0)
+		charcolumns++;
+
+	switch (getType())
 	{
-		uint16_t charcolumns = 1;
+		case DataFormatter::HEX_ASM:
+		case DataFormatter::HEX_C:
+		case DataFormatter::DEC_SIGNED:
+			charcolumns += 4;
+		break;
+	
+		case DataFormatter::BIN:
+			charcolumns += 9;
+		break;
 
-		if (getColumnPrefix() != 0)
-			charcolumns += 2;			// ", "
-
-		switch (getType())
-		{
-			case DataFormatter::BIN:
-				charcolumns += 9;
-			break;
-
-			case DataFormatter::HEX_CBM:
-			case DataFormatter::HEX_ASM:
-			case DataFormatter::HEX_C:
-				charcolumns += 3;
-			break;
-		}
-		uint16_t columns = (getColumns() - (uint16_t)mBuffer.size()) * charcolumns;
-		string filler(columns, ' ');
-
-		mBuffer = filler + mBuffer;
-
-		return super::writeBuffer(mBuffer, oOutput, nNewline);
+		case DataFormatter::DEC:
+		case DataFormatter::HEX_CBM:
+			charcolumns += 3;
+		break;
 	}
 
-	return true;
+	uint16_t columns = (getColumns() - (uint16_t)mBuffer.size()) * charcolumns;
+	string filler(columns+2, ' ');
+	filler += mBuffer;
+	mBuffer = "";
+
+	return super::writeBuffer(filler, oOutput, nNewline);
 }
 
-bool HexdumpFormatter::addToBuffer(const char *oData, const char *oEnd)
+bool HexdumpFormatter::createColumnValue(const char *oData, const char *oEnd, string &oColumnValue)
 {
-	if (super::addToBuffer(oData, oEnd) == false)
+	if (super::createColumnValue(oData, oEnd, oColumnValue) == false)
 		return false;
 
 	char c = *oData;
@@ -68,6 +103,7 @@ bool HexdumpFormatter::addToBuffer(const char *oData, const char *oEnd)
 		c = '.';
 
 	mBuffer += c;
+	mAddress++;
 
 	return true;
 }

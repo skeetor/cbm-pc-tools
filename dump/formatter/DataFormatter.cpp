@@ -36,7 +36,6 @@ DataFormatter::DataFormatter(ByteType type, uint16_t columns, const std::string 
 , mAddHeader(true)
 , mColumnPrefix(columnPrefix)
 {
-	memset(mColon, 0, sizeof(mColon));
 }
 
 bool DataFormatter::writeBuffer(string &buffer, IFile *oOutput, char nNewline)
@@ -68,15 +67,20 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 {
 	const char *end = oData + nDataSize;
 
+	string columnvalue;
+
 	while (oData < end)
 	{
-		mColon[0] = getColumnPrefix();
-		mColon[1] = ' ';
+		char colon[3];
 
-		if (mColon[0] == 0)
+		colon[0] = getColumnPrefix();
+		colon[1] = ' ';
+		colon[2] = 0;
+
+		if (colon[0] == 0)
 		{
-			mColon[0] = ' ';
-			mColon[1] = 0;
+			colon[0] = ' ';
+			colon[1] = 0;
 		}
 
 		if (mCurColumn == mColumns)
@@ -94,14 +98,18 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 				return false;
 
 			mBuffer = getLinePrefix();
-			mColon[0] = 0;
+			colon[0] = 0;
 		}
 
-		if (addToBuffer(oData, end) == false)
+		columnvalue.resize(0);
+		if (createColumnValue(oData, end, columnvalue) == false)
 			return false;
 
+		mBuffer += colon;
+		mBuffer += columnvalue;
+
 		oData++;
-		mColon[0] = getColumnPrefix();
+		colon[0] = getColumnPrefix();
 		mCurColumn++;
 	}
 
@@ -116,7 +124,7 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 	return true;
 }
 
-bool DataFormatter::addToBuffer(const char *oData, const char *oEnd)
+bool DataFormatter::createColumnValue(const char *oData, const char *oEnd, std::string &oColumnValue)
 {
 	UNUSED(oEnd);
 
@@ -125,22 +133,22 @@ bool DataFormatter::addToBuffer(const char *oData, const char *oEnd)
 	unsigned char uc = *oData;
 
 	if (mType == DEC)
-		sprintf(buffer, "%s%u", mColon, (unsigned int)(uc) & 0xff);
+		sprintf(buffer, "%u", (unsigned int)(uc) & 0xff);
 	else if (mType == DEC_SIGNED)
-		sprintf(buffer, "%s%d", mColon, c);
+		sprintf(buffer, "%d", c);
 	else if (mType == HEX_CBM)
-		sprintf(buffer, "%s$%02x", mColon, (unsigned int)(uc) & 0xff);
+		sprintf(buffer, "$%02x", (unsigned int)(uc) & 0xff);
 	else if (mType == HEX_ASM)
 	{
 		char value[4] = { 0 };
 		sprintf(value, "%02xh", (unsigned int)(uc) & 0xff);
 		if (isalpha(value[0]))
-			sprintf(buffer, "%s0%s", mColon, value);
+			sprintf(buffer, "0%s", value);
 		else
-			sprintf(buffer, "%s%s", mColon, value);
+			sprintf(buffer, "%s", value);
 	}
 	else if (mType == HEX_C)
-		sprintf(buffer, "%s0x%02x", mColon, (unsigned int)(uc) & 0xff);
+		sprintf(buffer, "0x%02x", (unsigned int)(uc) & 0xff);
 	else if (mType == BIN)
 	{
 		buffer[0] = '%';
@@ -149,7 +157,7 @@ bool DataFormatter::addToBuffer(const char *oData, const char *oEnd)
 	else
 		return false;
 
-	mBuffer += buffer;
+	oColumnValue = buffer;
 
 	return true;
 }

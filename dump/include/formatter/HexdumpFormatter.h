@@ -7,43 +7,52 @@ class HexdumpFormatter
 : public DataFormatter
 {
 public:
-	HexdumpFormatter(DataFormatter::ByteType type = HEX_CBM, uint16_t columns = 16, bool bShowAscii = true, bool bPetsci = false);
+	typedef enum
+	{
+		NONE,
+		ASCII,
+		PETSCI,
+		CBM_SCREEN,			// C64, VC20, etc.
+
+		MODE_INVALID
+	} CharMode;
+
+public:
+	HexdumpFormatter(DataFormatter::ByteType type = HEX_CBM, uint16_t columns = 16, int nAdressSize = 16, CharMode nCharMode = ASCII);
 	~HexdumpFormatter() override {}
 
 	bool init(void) override;
 
 public:
-	void setShowAscii(bool bShowAscii)
+	/**
+	 * Sets the input format. i.E. if the mode is CBM_SCREEN and the char is 0x01 an 'A' is displayed.
+	 * This works only partially, because not all CBM screen characters may be displayed as a character
+	 * here.
+	 */
+	void setCharMode(CharMode nCharMode)
 	{
-		mShowAscii = bShowAscii;
+		mCharMode = nCharMode;
 	}
 
-	bool isShowAscii(void) const
+	CharMode getCharMode(void) const
 	{
-		return mShowAscii;
+		return mCharMode;
 	}
 
-	void setPetsci(bool bPetsci)
-	{
-		mPetsci = bPetsci;
-	}
-
-	bool isPetsci(void) const
-	{
-		return mPetsci;
-	}
+	std::string getLinePrefix(void) const override;
 
 protected:
 	bool writeBuffer(toolslib::files::IFile *oOutput, char nNewline = '\n') override;
-	bool addToBuffer(const char *oData, const char *oEnd) override;
+	bool createColumnValue(const char *oData, const char *oEnd, std::string &oColumnValue) override;
 
 private:
 	typedef DataFormatter super;
 
 private:
 	std::string mBuffer;
-	bool mShowAscii : 1;
-	bool mPetsci : 1;		// PETSCI format if true, otherwise ASCII
+	mutable uint64_t mAddress;
+	int mAddressSize;
+	CharMode mCharMode;
 };
 
 #endif // DUMP_HEXDUMPFORMATTER_H

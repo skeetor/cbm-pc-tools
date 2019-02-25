@@ -387,7 +387,7 @@ R"(Output format type
 
 	oParser.addOption("hexdump", "x",
 R"(Output format type
-    [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [ascii=default|screen|petsci|off] [<addresswidth> = 8|16|32|64]
+    [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [ascii=default|screen|petsci|off] [<addresswidth> = 0|16|32|64]
 )"
 		)
 		.arguments(0, 4)
@@ -406,7 +406,7 @@ R"(Output format type
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); maxLength(oOption.values().back()); })
 		;
 
-	oParser.addOption("write", "w", "Write custom data. First value may be 8,16,32,64 to specify the bitness or a filename")
+	oParser.addOption("write", "w", "Write custom data. First value may be 8,16,32,64 to specify the bitness")
 		.multiple()
 		.arguments(1, CommandlineParser::UNLIMITED_ARGS)
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); writeData(oOption.values().back()); })
