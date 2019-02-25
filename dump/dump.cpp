@@ -106,10 +106,8 @@ unique_ptr<IFile> FileProcessor::openFile(const string &oFilename, const IFile::
 	return file;
 }
 
-void FileProcessor::inputFile(CommandlineParser &oParser, const vector<string> &oArgs)
+void FileProcessor::inputFile(const vector<string> &oArgs)
 {
-	UNUSED(oParser);
-
 	for (const string &filename : oArgs)
 	{
 		IFile::open_mode md = { 0 };
@@ -153,10 +151,8 @@ void FileProcessor::inputFile(CommandlineParser &oParser, const vector<string> &
 	}
 }
 
-void FileProcessor::outputFile(CommandlineParser &oParser, const vector<string> &oArgs)
+void FileProcessor::outputFile(const vector<string> &oArgs)
 {
-	UNUSED(oParser);
-
 	IFile::open_mode md = { 0 };
 
 	md.write = true;
@@ -219,14 +215,14 @@ uint16_t FileProcessor::parseColumn(const string &value, const vector<string> &o
 	return (uint16_t)-1;
 }
 
-void FileProcessor::parseData(const vector<string> &oArgs)
+void FileProcessor::dumpData(const vector<string> &oArgs)
 {
 	m_formatter->flush(m_output.get());
 
 	DataFormatter *formatter = new DataFormatter();
 	m_formatter.reset(formatter);
 
-	size_t i = 1;
+	size_t i = 0;
 	string v = oArgs[i];
 
 	uint16_t columns;
@@ -277,14 +273,14 @@ void FileProcessor::parseData(const vector<string> &oArgs)
 	formatter->setColumnPrefix(c);
 }
 
-void FileProcessor::parseHexdump(const vector<string> &oArgs)
+void FileProcessor::dumpHexdump(const vector<string> &oArgs)
 {
 	m_formatter->flush(m_output.get());
 
 	HexdumpFormatter *formatter = new HexdumpFormatter();
 	m_formatter.reset(formatter);
 
-	size_t i = 1;
+	size_t i = 0;
 	string v = oArgs[i];
 
 	uint16_t columns;
@@ -298,45 +294,22 @@ void FileProcessor::parseHexdump(const vector<string> &oArgs)
 	v = oArgs[i];
 }
 
-void FileProcessor::formatType(CommandlineParser &oParser, const vector<string> &oArgs)
+void FileProcessor::skipOffset(const vector<string> &oArgs)
 {
-	UNUSED(oParser);
-
-	const string &formatter = oArgs[0];
-
-	if (formatter == "data")
-		parseData(oArgs);
-	else if (formatter == "xd")
-		parseHexdump(oArgs);
-	else
-	{
-		string msg = "Unknown type: " + toString(oArgs);
-		throw runtime_error(msg);
-	}
-}
-
-void FileProcessor::skipOffset(CommandlineParser &oParser, const vector<string> &oArgs)
-{
-	UNUSED(oParser);
-
 	const string &number = oArgs[0];
 
 	m_startPos = fromNumber<int64_t>(number, nullptr, false);
 }
 
-void FileProcessor::maxLength(CommandlineParser &oParser, const vector<string> &oArgs)
+void FileProcessor::maxLength(const vector<string> &oArgs)
 {
-	UNUSED(oParser);
-
 	const string &number = oArgs[0];
 
 	m_maxLen = fromNumber<int64_t>(number, nullptr, false);
 }
 
-void FileProcessor::writeData(CommandlineParser &oParser, const vector<string> &oArgs)
+void FileProcessor::writeData(const vector<string> &oArgs)
 {
-	UNUSED(oParser);
-
 	const string &number = oArgs[0];
 	if (isdigit(number[0]))
 	{
@@ -388,47 +361,55 @@ void FileProcessor::createCommandlineOptions(CommandlineParser &oParser)
 		.multiple()
 		.mandatory()
 		.arguments(1, CommandlineParser::UNLIMITED_ARGS)
-		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { inputFile(oParser, oOption.values().back()); })
+		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); inputFile(oOption.values().back()); })
 		;
 
 	oParser.addOption("output", "o", "Outputfile")
 		.multiple()
 		.arguments()
-		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { outputFile(oParser, oOption.values().back()); })
+		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); outputFile(oOption.values().back()); })
 		;
 
-	oParser.addOption("type", "t",
+	oParser.addOption("data", "d",
 R"(Output format type
-    data [<columns>] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [<lineprefix>(default=".byte") <header> <postfix> <column separator>]
+    [<columns>] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [<lineprefix>(default=".byte") <header> <postfix> <column separator>]
        <columns> = number of columns per line
        cbm = '$a2', asm = '0a2h', c = '0xa2'
        <lineprefix> = user defined string, default is '.byte')
        <header> = printed first (optional)
        <postfix> = added after the last line (optional)
        <column separator> = added after the last line (optional)
-    xd [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [ascii=default|screen|petsci|off]
 )"
 			)
-			.arguments(1, 7)
-			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { formatType(oParser, oOption.values().back()); })
+			.arguments(0, 6)
+			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); dumpData(oOption.values().back()); })
 		;
+
+	oParser.addOption("hexdump", "x",
+R"(Output format type
+    [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [ascii=default|screen|petsci|off] [<addresswidth> = 8|16|32|64]
+)"
+		)
+		.arguments(0, 4)
+		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); dumpHexdump(oOption.values().back()); })
+;
 
 	oParser.addOption("skip", "s", "Skip first N bytes from inputfile")
 		.multiple()
 		.arguments()
-		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { skipOffset(oParser, oOption.values().back()); })
+		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); skipOffset(oOption.values().back()); })
 		;
 
 	oParser.addOption("length", "l", "Write only N bytes")
 		.multiple()
 		.arguments()
-		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { maxLength(oParser, oOption.values().back()); })
+		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); maxLength(oOption.values().back()); })
 		;
 
 	oParser.addOption("write", "w", "Write custom data. First value may be 8,16,32,64 to specify the bitness or a filename")
 		.multiple()
 		.arguments(1, CommandlineParser::UNLIMITED_ARGS)
-		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { writeData(oParser, oOption.values().back()); })
+		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); writeData(oOption.values().back()); })
 		;
 }
 

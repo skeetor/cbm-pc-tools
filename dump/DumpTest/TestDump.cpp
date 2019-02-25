@@ -331,7 +331,7 @@ namespace
 			// Hex dump with default settings (8 columns, cbm hex)
 			,TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "8", "hex", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "8", "hex", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
@@ -343,7 +343,7 @@ R"(.byte $00, $7f, $80, $ff, $30, $31, $32, $33
 			// Hex dump in assembler format (0xxh) with a label
 			,TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "8", "hex=asm", ".byte ", "MyLabel:", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "8", "hex=asm", ".byte ", "MyLabel:", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x45 } }
 				, TestParameter::stringToVector
 				(
@@ -355,7 +355,7 @@ R"(MyLabel:
 			// Dump in C syntax including the variable header
 			,TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "8", "hex=c", "", "const char mybuffer[] = {", "};", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "8", "hex=c", "", "const char mybuffer[] = {", "};", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33 } }
 				, TestParameter::stringToVector
 				(
@@ -368,7 +368,7 @@ R"(const char mybuffer[] = {
 			// Dec dump, 7 columns unsigned
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "7", "dec", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "7", "dec", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
@@ -381,7 +381,7 @@ R"(.byte 0, 127, 128, 255, 48, 49, 50
 			// Dec dump, 7 columns unsigned
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "7", "dec=signed", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "7", "dec=signed", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x81, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
@@ -394,7 +394,7 @@ R"(.byte 0, 127, -128, -1, -127, 49, 50
 			// Bin dump
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "1", "bin", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "1", "bin", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0xaa, 0x55 } }
 				, TestParameter::stringToVector
 				(
@@ -411,7 +411,7 @@ R"(.byte %00000000
 			// Hex dump Version 1 using only columns via the data formatter
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "16", "hex", "", "", "", "", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "16", "hex", "", "", "", "", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
@@ -423,7 +423,7 @@ R"($00 $7f $80 $ff $30 $31 $32 $33 $45
 			// Hex dump 
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "xd", "16", "hex", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-x", "16", "hex", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(

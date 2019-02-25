@@ -87,8 +87,6 @@ dump -o mergedfile.txt -i myfile1.txt -w 'A' 'B' 0aeh 0x12
 <br>
 <br>
 <br>
-**type**: Output in a specific format  
-
 **data** writes the data in columns  
 
 ```data [<columns>] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [<lineprefix>(default=".byte") <header> <postfix> <column separator>]```
@@ -110,18 +108,18 @@ dump -o mergedfile.txt -i myfile1.txt -w 'A' 'B' 0aeh 0x12
 
 
 **Example:**  Write as an assembler byte definition with 8 columns  
-dump -o mergedfile.txt  -t data 8 -i myfile1.txt  
+dump -o mergedfile.txt  -d 8 -i myfile1.txt  
 
 Write as a C source byte definition with 8 columns. lineprefix
 is empty and we define a header and postfix
-dump -o mergedfile.txt -t data 8 hex=c "" "const char mybuffer[] = {" "};" -i myfile1.txt  
+dump -o mergedfile.txt -d 8 hex=c "" "const char mybuffer[] = {" "};" -i myfile1.txt  
 
 Dump default as unsigned decimals  
-dump -o mergedfile.txt -t data 8 dec -i myfile1.txt  
-dump -o mergedfile.txt -t data 8 dec=unsigned -i myfile1.txt  
+dump -o mergedfile.txt -d 8 dec -i myfile1.txt  
+dump -o mergedfile.txt -d 8 dec=unsigned -i myfile1.txt  
 
 Dump default as signed decimals  
-dump -o mergedfile.txt -t data 8 dec=signed -i myfile1.txt  
+dump -o mergedfile.txt -d 8 dec=signed -i myfile1.txt  
 
 Simple hex dump    
-dump -o mergedfile.txt -t data 16 hex "" "" "" "" -i myfile1.txt  
+dump -o mergedfile.txt -d 16 hex "" "" "" "" -i myfile1.txt  

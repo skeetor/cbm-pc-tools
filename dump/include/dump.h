@@ -69,19 +69,19 @@ protected:
 	virtual std::unique_ptr<toolslib::files::IFile> createFile(const std::string &oFilename);
 
 	std::unique_ptr<toolslib::files::IFile> openFile(const std::string &oArgs, const toolslib::files::IFile::open_mode &oMode);
-	void inputFile(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void outputFile(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void formatType(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void skipOffset(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void maxLength(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void writeData(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
+
 	void createCommandlineOptions(toolslib::utils::CommandlineParser &oParser);
-
-	void parseData(const std::vector<std::string> &oArgs);
-	void parseHexdump(const std::vector<std::string> &oArgs);
-
 	int parseByteType(std::string format);
 	uint16_t parseColumn(const std::string &value, const std::vector<std::string> &oArgs);
+
+	// Option callbacks
+	void inputFile(const std::vector<std::string> &oArgs);
+	void outputFile(const std::vector<std::string> &oArgs);
+	void skipOffset(const std::vector<std::string> &oArgs);
+	void maxLength(const std::vector<std::string> &oArgs);
+	void writeData(const std::vector<std::string> &oArgs);
+	void dumpData(const std::vector<std::string> &oArgs);
+	void dumpHexdump(const std::vector<std::string> &oArgs);
 
 private:
 	std::unique_ptr<toolslib::files::IFile> m_output;
