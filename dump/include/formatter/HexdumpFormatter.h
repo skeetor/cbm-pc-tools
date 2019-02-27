@@ -18,7 +18,7 @@ public:
 	} CharMode;
 
 public:
-	HexdumpFormatter(DataFormatter::ByteType type = HEX_CBM, uint16_t columns = 16, int nAdressSize = 16, CharMode nCharMode = ASCII);
+	HexdumpFormatter(DataFormatter::ByteType type = HEX, uint16_t columns = 16, int nAdressSize = 16, CharMode nCharMode = ASCII);
 	~HexdumpFormatter() override {}
 
 	bool init(void) override;

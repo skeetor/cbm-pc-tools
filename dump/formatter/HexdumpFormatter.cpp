@@ -83,6 +83,10 @@ bool HexdumpFormatter::writeBuffer(IFile *oOutput, char nNewline)
 		case DataFormatter::HEX_CBM:
 			charcolumns += 3;
 		break;
+
+		case DataFormatter::HEX:
+			charcolumns += 2;
+		break;
 	}
 
 	uint16_t columns = (getColumns() - (uint16_t)mBuffer.size()) * charcolumns;

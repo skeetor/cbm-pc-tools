@@ -196,6 +196,8 @@ int FileProcessor::parseByteType(string param)
 			return DataFormatter::HEX_ASM;
 		else if (param == "c")
 			return DataFormatter::HEX_C;
+		else
+			return DataFormatter::HEX;
 	}
 
 	return DataFormatter::TYPE_INVALID;
@@ -281,6 +283,9 @@ void FileProcessor::dumpHexdump(const vector<string> &oArgs)
 	m_formatter.reset(formatter);
 
 	size_t i = 0;
+	if (i >= oArgs.size())
+		return;
+
 	string v = oArgs[i];
 
 	uint16_t columns;
@@ -387,7 +392,7 @@ R"(Output format type
 
 	oParser.addOption("hexdump", "x",
 R"(Output format type
-    [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [ascii=default|screen|petsci|off] [<addresswidth> = 0|16|32|64]
+    [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm|asm|c] [ascii=default|screen|petsci|off] [<addresswidth> = 0|16|32|64]
 )"
 		)
 		.arguments(0, 4)

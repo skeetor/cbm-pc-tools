@@ -423,12 +423,24 @@ R"($00 $7f $80 $ff $30 $31 $32 $33 $45
 			// Hex dump 
 			, TestParameter
 			(
+				{ "TEST.EXE", "-o", "output", "-x", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(0000: 00 7f 80 ff 30 31 32 33 45                       ....0123E
+)"
+				)
+			)
+
+			// Hex dump 
+			, TestParameter
+			(
 				{ "TEST.EXE", "-o", "output", "-x", "8", "hex", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
-R"(0000: $00 $7f $80 $ff $30 $31 $32 $33  ....0123
-0008: $45                              E
+R"(0000: 00 7f 80 ff 30 31 32 33  ....0123
+0008: 45                       E
 )"
 				)
 			)

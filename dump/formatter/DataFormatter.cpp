@@ -136,6 +136,8 @@ bool DataFormatter::createColumnValue(const char *oData, const char *oEnd, std::
 		sprintf(buffer, "%u", (unsigned int)(uc) & 0xff);
 	else if (mType == DEC_SIGNED)
 		sprintf(buffer, "%d", c);
+	else if (mType == HEX)
+		sprintf(buffer, "%02x", (unsigned int)(uc) & 0xff);
 	else if (mType == HEX_CBM)
 		sprintf(buffer, "$%02x", (unsigned int)(uc) & 0xff);
 	else if (mType == HEX_ASM)

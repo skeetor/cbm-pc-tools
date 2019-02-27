@@ -12,6 +12,7 @@ public:
 		DEC,
 		DEC_SIGNED,
 		BIN,
+		HEX,				// ae
 		HEX_CBM,			// $ae
 		HEX_ASM,			// 0aeh, 12h
 		HEX_C,				// 0xae
