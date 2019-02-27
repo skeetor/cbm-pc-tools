@@ -18,7 +18,7 @@ public:
 	} CharMode;
 
 public:
-	HexdumpFormatter(DataFormatter::ByteType type = HEX, uint16_t columns = 16, int nAdressSize = 16, CharMode nCharMode = ASCII);
+	HexdumpFormatter(DataFormatter::ByteType type = HEX, uint16_t columns = 16, uint16_t nAdressSize = 16, CharMode nCharMode = ASCII);
 	~HexdumpFormatter() override {}
 
 	bool init(void) override;
@@ -39,6 +39,16 @@ public:
 		return mCharMode;
 	}
 
+	void setAddressSize(uint16_t nAddressSize)
+	{
+		mAddressSize = nAddressSize;
+	}
+
+	uint16_t getAddressSize(void) const
+	{
+		return mAddressSize;
+	}
+
 	std::string getLinePrefix(void) const override;
 
 protected:
@@ -51,7 +61,7 @@ private:
 private:
 	std::string mBuffer;
 	mutable uint64_t mAddress;
-	int mAddressSize;
+	uint16_t mAddressSize;
 	CharMode mCharMode;
 };
 

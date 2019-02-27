@@ -36,8 +36,43 @@ namespace
 		size_t i = index;
 		while (i < numbers.size())
 		{
-			T data = fromNumber<T>(numbers[i], nullptr);
-			values.emplace_back(data);
+			const string &nr = numbers[i];
+
+			if (nr.empty())
+				continue;
+
+			if (nr[0] == '\"')
+			{
+				bool add = true;
+				for (char c : nr)
+				{
+					if (add == true)
+					{
+						if (c == '\\')
+						{
+							add = false;
+							continue;
+						}
+
+						if (c == '\"')
+							break;
+
+						// remapData((T)c)
+						values.emplace_back((T)c);
+					}
+					else
+					{
+						add = true;
+						// remapData((T)c)
+						values.emplace_back((T)c);
+					}
+				}
+			}
+			else
+			{
+				T data = fromNumber<T>(numbers[i], nullptr);
+				values.emplace_back(data);
+			}
 			i++;
 		}
 
@@ -282,21 +317,60 @@ void FileProcessor::dumpHexdump(const vector<string> &oArgs)
 	HexdumpFormatter *formatter = new HexdumpFormatter();
 	m_formatter.reset(formatter);
 
-	size_t i = 0;
-	if (i >= oArgs.size())
-		return;
+	bool column = false;
+	bool width = false;
+	DataFormatter::ByteType type = DataFormatter::TYPE_INVALID;
 
-	string v = oArgs[i];
+	for (const string &v : oArgs)
+	{
+		if (v.empty())
+		{
+			string msg = "Invalid parameter: " + toString(oArgs);
+			throw runtime_error(msg);
+		}
 
-	uint16_t columns;
-	if ((columns = parseColumn(v, oArgs)) != (uint16_t)-1)
-		formatter->setColumns(columns);
+		if (isdigit(v[0]))
+		{
+			if (column == false)
+			{
+				column = true;
+				uint16_t val;
+				if ((val = parseColumn(v, oArgs)) != (uint16_t)-1)
+					formatter->setColumns(val);
+			}
+			else if (width == false)
+			{
+				width = true;
 
-	i++;
-	if (i >= oArgs.size())
-		return;
-
-	v = oArgs[i];
+				uint16_t val;
+				if ((val = parseColumn(v, oArgs)) != (uint16_t)-1)
+					formatter->setAddressSize(val);
+			}
+			else
+			{
+				string msg = "Invalid parameter: " + toString(oArgs);
+				throw runtime_error(msg);
+			}
+		}
+		else
+		{
+			if (type == DataFormatter::TYPE_INVALID)
+			{
+				if ((type = (DataFormatter::ByteType)parseByteType(v)) != DataFormatter::TYPE_INVALID)
+					formatter->setType(type);
+				else
+				{
+					string msg = "Invalid format: " + toString(oArgs);
+					throw runtime_error(msg);
+				}
+			}
+			else
+			{
+				string msg = "Invalid parameter: " + toString(oArgs);
+				throw runtime_error(msg);
+			}
+		}
+	}
 }
 
 void FileProcessor::skipOffset(const vector<string> &oArgs)
@@ -395,7 +469,7 @@ R"(Output format type
     [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm|asm|c] [ascii=default|screen|petsci|off] [<addresswidth> = 0|16|32|64]
 )"
 		)
-		.arguments(0, 4)
+		.arguments(0, 3)
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); dumpHexdump(oOption.values().back()); })
 ;
 
@@ -418,17 +492,6 @@ R"(Output format type
 		;
 }
 
-bool FileProcessor::hasHelp(void)
-{
-	if (m_parser.hasArgument("help"))
-	{
-		m_parser.help();
-		return true;
-	}
-
-	return false;
-}
-
 int FileProcessor::status(void)
 {
 	return m_result;
@@ -443,6 +506,9 @@ int FileProcessor::run(void)
 		string msg = "Error with parameter '" + m_parser.getErrorParam() + "' at position " + to_string(error);
 		throw runtime_error(msg);
 	}
+
+	if (m_parser.hasArgument("help"))
+		return 1;
 
 	m_formatter->finalize(m_output.get());
 	m_output->close();

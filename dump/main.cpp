@@ -25,19 +25,22 @@ int main(int argc, char* argv[])
 
 		FileProcessor processor(parser);
 
-		if (processor.hasHelp())
-			return 1;
-
-		result = processor.status();
-		if (result)
-			return result;
-
 		result = processor.run();
+
+		if (parser.hasArgument("help"))
+		{
+			parser.help();
+			return 1;
+		}
+
 	}
 	catch (runtime_error &ex)
 	{
-		cerr << "Exception: " << ex.what() << endl;
-		result = 10;
+		if (argc > 1)
+		{
+			cerr << "Exception: " << ex.what() << endl;
+			result = 10;
+		}
 	}
 	catch(...)
 	{

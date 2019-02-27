@@ -59,7 +59,6 @@ public:
 	FileProcessor(toolslib::utils::CommandlineParser &parser);
 	virtual ~FileProcessor();
 
-	bool hasHelp(void);
 	int run(void);
 	int status(void);
 

@@ -189,6 +189,21 @@ namespace
 		EXPECT_EQ(-1, processor.status());
 	}
 
+	TEST_F(TDump, Help)
+	{
+		vector<string> arguments =
+		{
+			"TEST.EXE", "--help"
+		};
+
+		CommandlineParser parser(arguments);
+		TFileProcessor processor(parser);
+
+		int result = -2;
+		EXPECT_NO_THROW((result = processor.run()));
+		EXPECT_EQ(1, result);
+	}
+
 	// Internal buffer is exactly as big as the requested length
 	TEST_F(TDump, BufferExact)
 	{
@@ -436,6 +451,19 @@ R"(0000: 00 7f 80 ff 30 31 32 33 45                       ....0123E
 			, TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-x", "8", "hex", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(0000: 00 7f 80 ff 30 31 32 33  ....0123
+0008: 45                       E
+)"
+				)
+			)
+
+			// Hex dump 
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-x", "$8", "hex", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
