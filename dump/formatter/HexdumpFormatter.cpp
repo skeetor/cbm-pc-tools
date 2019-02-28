@@ -61,11 +61,14 @@ bool HexdumpFormatter::writeBuffer(IFile *oOutput, char nNewline)
 	if (mBuffer.empty())
 		return true;
 
+	if (getCharMode() == NONE)
+	{
+		string empty;
+		return super::writeBuffer(empty, oOutput, nNewline);
+	}
+
 	// Space is always a column separator
 	uint16_t charcolumns = 1;
-
-	if (getColumnPrefix() != 0)
-		charcolumns++;
 
 	switch (getType())
 	{

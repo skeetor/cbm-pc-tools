@@ -70,7 +70,7 @@ protected:
 	std::unique_ptr<toolslib::files::IFile> openFile(const std::string &oArgs, const toolslib::files::IFile::open_mode &oMode);
 
 	void createCommandlineOptions(toolslib::utils::CommandlineParser &oParser);
-	int parseByteType(std::string format);
+	int parseByteType(std::string format, bool bCbmDefault = true);
 	uint16_t parseColumn(const std::string &value, const std::vector<std::string> &oArgs);
 
 	// Option callbacks
@@ -81,6 +81,8 @@ protected:
 	void writeData(const std::vector<std::string> &oArgs);
 	void dumpData(const std::vector<std::string> &oArgs);
 	void dumpHexdump(const std::vector<std::string> &oArgs);
+
+	bool isNumber(const std::string &value) const;
 
 private:
 	std::unique_ptr<toolslib::files::IFile> m_output;

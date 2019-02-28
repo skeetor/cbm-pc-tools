@@ -198,7 +198,7 @@ void FileProcessor::outputFile(const vector<string> &oArgs)
 	m_output = openFile(oArgs[0], md);
 }
 
-int FileProcessor::parseByteType(string param)
+int FileProcessor::parseByteType(string param, bool bCbmDefault)
 {
 	string format;
 
@@ -225,14 +225,19 @@ int FileProcessor::parseByteType(string param)
 		return DataFormatter::BIN;
 	else if (format == "hex")
 	{
-		if (param.empty() || param == "cbm")
+		if (param == "cbm")
 			return DataFormatter::HEX_CBM;
 		else if (param == "asm")
 			return DataFormatter::HEX_ASM;
 		else if (param == "c")
 			return DataFormatter::HEX_C;
 		else
-			return DataFormatter::HEX;
+		{
+			if(bCbmDefault)
+				return DataFormatter::HEX_CBM;
+			else
+				return DataFormatter::HEX;
+		}
 	}
 
 	return DataFormatter::TYPE_INVALID;
@@ -246,10 +251,26 @@ uint16_t FileProcessor::parseColumn(const string &value, const vector<string> &o
 		throw runtime_error(msg);
 	}
 
-	if (isdigit(value[0]))
+	if (isNumber(value))
 		return fromNumber<uint16_t>(value, nullptr, false);
 
 	return (uint16_t)-1;
+}
+
+bool FileProcessor::isNumber(const std::string &value) const
+{
+	if (value.empty())
+		return false;
+
+	char c = value[0];
+
+	if (isdigit(c))
+		return true;
+
+	if (c == '$' || c == '%')
+		return true;
+
+	return false;
 }
 
 void FileProcessor::dumpData(const vector<string> &oArgs)
@@ -329,7 +350,7 @@ void FileProcessor::dumpHexdump(const vector<string> &oArgs)
 			throw runtime_error(msg);
 		}
 
-		if (isdigit(v[0]))
+		if (isNumber(v))
 		{
 			if (column == false)
 			{
@@ -356,17 +377,33 @@ void FileProcessor::dumpHexdump(const vector<string> &oArgs)
 		{
 			if (type == DataFormatter::TYPE_INVALID)
 			{
-				if ((type = (DataFormatter::ByteType)parseByteType(v)) != DataFormatter::TYPE_INVALID)
-					formatter->setType(type);
-				else
+				if ((type = (DataFormatter::ByteType)parseByteType(v, false)) != DataFormatter::TYPE_INVALID)
 				{
-					string msg = "Invalid format: " + toString(oArgs);
-					throw runtime_error(msg);
+					formatter->setType(type);
+					continue;
 				}
 			}
-			else
+
+			string param = v;
+			string format;
+			size_t pos = param.find('=');
+			if (pos != string::npos)
+			{
+				format = param.substr(0, pos);
+				param.erase(0, pos + 1);
+			}
+
+			if(format != "ascii")
 			{
 				string msg = "Invalid parameter: " + toString(oArgs);
+				throw runtime_error(msg);
+			}
+
+			if (param == "off")
+				formatter->setCharMode(HexdumpFormatter::NONE);
+			else
+			{
+				string msg = "Not yet implemented: " + param;
 				throw runtime_error(msg);
 			}
 		}
@@ -466,7 +503,7 @@ R"(Output format type
 
 	oParser.addOption("hexdump", "x",
 R"(Output format type
-    [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm|asm|c] [ascii=default|screen|petsci|off] [<addresswidth> = 0|16|32|64]
+    [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm|asm|c] [ascii=screen|petsci|off] [<addresswidth> = 0|16|32|64]
 )"
 		)
 		.arguments(0, 3)
