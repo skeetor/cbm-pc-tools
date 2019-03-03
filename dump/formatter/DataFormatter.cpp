@@ -38,32 +38,45 @@ DataFormatter::DataFormatter(ByteType type, uint16_t columns, const std::string 
 {
 }
 
-bool DataFormatter::writeBuffer(IFile *oOutput)
+bool DataFormatter::writeBuffer(string &buffer, IFile *oOutput, char nNewline)
 {
-	mCurColumn = 0;
-
 	bool rc = true;
 
-	if (!mBuffer.empty())
+	if (!buffer.empty())
 	{
-		mBuffer += '\n';
-		if ((size_t)oOutput->write(&mBuffer[0], mBuffer.size()) != mBuffer.size())
+		if (nNewline)
+			buffer += nNewline;
+
+		if ((size_t)oOutput->write(&buffer[0], buffer.size()) != buffer.size())
 			rc = false;
 	}
 
-	mBuffer = "";
+	buffer = "";
 
-	return true;
+	return rc;
+}
+
+bool DataFormatter::writeBuffer(IFile *oOutput, char nNewline)
+{
+	mCurColumn = 0;
+
+	return writeBuffer(mBuffer, oOutput, nNewline);
 }
 
 bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 {
 	const char *end = oData + nDataSize;
 
+	string columnvalue;
+
 	while (oData < end)
 	{
-		char colon[3] = ", ";
+		char colon[3];
+
 		colon[0] = getColumnPrefix();
+		colon[1] = ' ';
+		colon[2] = 0;
+
 		if (colon[0] == 0)
 		{
 			colon[0] = ' ';
@@ -88,36 +101,14 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 			colon[0] = 0;
 		}
 
-		char buffer[12] = { 0 };
-		char c = *oData;
-		unsigned char uc = *oData++;
-
-		if (mType == DEC)
-			sprintf(buffer, "%s%u", colon, (unsigned int)(uc) & 0xff);
-		else if (mType == DEC_SIGNED)
-			sprintf(buffer, "%s%d", colon, c);
-		else if (mType == HEX_CBM)
-			sprintf(buffer, "%s$%02x", colon, (unsigned int)(uc) & 0xff);
-		else if (mType == HEX_ASM)
-		{
-			char value[4] = { 0 };
-			sprintf(value, "%02xh", (unsigned int)(uc) & 0xff);
-			if (isalpha(value[0]))
-				sprintf(buffer, "%s0%s", colon, value);
-			else
-				sprintf(buffer, "%s%s", colon, value);
-		}
-		else if (mType == HEX_C)
-			sprintf(buffer, "%s0x%02x", colon, (unsigned int)(uc) & 0xff);
-		else if (mType == BIN)
-		{
-			buffer[0] = '%';
-			toBinary(&buffer[1], buffer + sizeof(buffer) - 2, uc);
-		}
-		else
+		columnvalue.resize(0);
+		if (createColumnValue(oData, end, columnvalue) == false)
 			return false;
 
-		mBuffer += buffer;
+		mBuffer += colon;
+		mBuffer += columnvalue;
+
+		oData++;
 		colon[0] = getColumnPrefix();
 		mCurColumn++;
 	}
@@ -132,6 +123,47 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 
 	return true;
 }
+
+bool DataFormatter::createColumnValue(const char *oData, const char *oEnd, std::string &oColumnValue)
+{
+	UNUSED(oEnd);
+
+	char buffer[12] = { 0 };
+	char c = *oData;
+	unsigned char uc = *oData;
+
+	if (mType == DEC)
+		sprintf(buffer, "%u", (unsigned int)(uc) & 0xff);
+	else if (mType == DEC_SIGNED)
+		sprintf(buffer, "%d", c);
+	else if (mType == HEX)
+		sprintf(buffer, "%02x", (unsigned int)(uc) & 0xff);
+	else if (mType == HEX_CBM)
+		sprintf(buffer, "$%02x", (unsigned int)(uc) & 0xff);
+	else if (mType == HEX_ASM)
+	{
+		char value[4] = { 0 };
+		sprintf(value, "%02xh", (unsigned int)(uc) & 0xff);
+		if (isalpha(value[0]))
+			sprintf(buffer, "0%s", value);
+		else
+			sprintf(buffer, "%s", value);
+	}
+	else if (mType == HEX_C)
+		sprintf(buffer, "0x%02x", (unsigned int)(uc) & 0xff);
+	else if (mType == BIN)
+	{
+		buffer[0] = '%';
+		toBinary(&buffer[1], buffer + sizeof(buffer) - 2, uc);
+	}
+	else
+		return false;
+
+	oColumnValue = buffer;
+
+	return true;
+}
+
 bool DataFormatter::init(void)
 {
 	mCurColumn = 0;

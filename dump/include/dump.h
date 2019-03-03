@@ -45,11 +45,8 @@ T fromNumber(const char *number, const char *end, const char **scanned)
 }
 
 template <typename T>
-T fromNumber(const std::string& number, const char **scanned, bool bAllowChar = true)
+T fromNumber(const std::string& number, const char **scanned)
 {
-	if (bAllowChar && (number.size() == 3 && number[0] == '\'' && number[2] == '\''))
-		return (T)number[1];
-
 	return fromNumber<T>(&number[0], &number[number.size()], scanned);
 }
 
@@ -59,7 +56,6 @@ public:
 	FileProcessor(toolslib::utils::CommandlineParser &parser);
 	virtual ~FileProcessor();
 
-	bool hasHelp(void);
 	int run(void);
 	int status(void);
 
@@ -69,19 +65,37 @@ protected:
 	virtual std::unique_ptr<toolslib::files::IFile> createFile(const std::string &oFilename);
 
 	std::unique_ptr<toolslib::files::IFile> openFile(const std::string &oArgs, const toolslib::files::IFile::open_mode &oMode);
-	void inputFile(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void outputFile(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void formatType(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void skipOffset(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void maxLength(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
-	void writeData(toolslib::utils::CommandlineParser &oParser, const std::vector<std::string> &oArgs);
+
 	void createCommandlineOptions(toolslib::utils::CommandlineParser &oParser);
+	int parseByteType(std::string format, bool bCbmDefault = true);
+	uint64_t parseNumber(const std::string &value, const std::vector<std::string> &oArgs, bool &bValid);
 
-	void parseData(const std::vector<std::string> &oArgs);
-	void parseHexdump(const std::vector<std::string> &oArgs);
+	// Option callbacks
+	void inputFile(const std::vector<std::string> &oArgs);
+	void outputFile(const std::vector<std::string> &oArgs);
+	void skipOffset(const std::vector<std::string> &oArgs);
+	void maxLength(const std::vector<std::string> &oArgs);
+	void writeData(const std::vector<std::string> &oArgs);
+	void dumpData(const std::vector<std::string> &oArgs);
+	void dumpHexdump(const std::vector<std::string> &oArgs);
 
-	int parseByteType(std::string format);
-	uint16_t parseColumn(const std::string &value, const std::vector<std::string> &oArgs);
+	bool isNumber(const std::string &value) const;
+
+	/**
+	 * Returns the input vector as a series of bytes. The input can contain data in any supported
+	 * format type. The size operator defines the bitness of the following data, default is 8bit.
+	 * Inside a char or a string, the escpae character '\' can be used, to define special characters
+	 * like " or ' as well as \n, \r, \t or  \\.
+	 *
+	 * @param oData
+	 * @param index index where to start in the data.
+	 *
+	 * Example:
+	 * 0x12 $13 'A' size=16 "WideCharString" size[=8] %0100 45 '\''
+	 */
+	std::vector<uint8_t> getVectorData(const std::vector<std::string> &oData, size_t index = 0) const;
+	void addVectorValue(std::vector<uint8_t> &values, uint64_t value, uint16_t size) const;
+	bool addVectorString(std::vector<uint8_t> &values, const std::string &value, uint16_t size) const;
 
 private:
 	std::unique_ptr<toolslib::files::IFile> m_output;

@@ -14,12 +14,12 @@ using namespace toolslib::utils;
 namespace
 {
 	template <typename T>
-	size_t cmpVector(const vector<T> &first, const vector<T> &second, string &msg)
+	int64_t cmpVector(const vector<T> &first, const vector<T> &second, string &msg)
 	{
-		size_t index = 0;
-		while (index < first.size())
+		int64_t index = 0;
+		while (index < (int64_t)first.size())
 		{
-			if (index >= second.size())
+			if (index >= (int64_t)second.size())
 			{
 				msg = "Size missmatch: " + to_string(first.size()) + " > " + to_string(second.size());
 				return index;
@@ -38,13 +38,13 @@ namespace
 			index++;
 		}
 
-		if (second.size() > index)
+		if ((int64_t)second.size() > index)
 		{
 			msg = "Size missmatch: " + to_string(first.size()) + " < " + to_string(second.size());
 			return index;
 		}
 
-		return (size_t)-1;
+		return -1;
 	}
 
 	class TFileProcessor
@@ -189,6 +189,21 @@ namespace
 		EXPECT_EQ(-1, processor.status());
 	}
 
+	TEST_F(TDump, Help)
+	{
+		vector<string> arguments =
+		{
+			"TEST.EXE", "--help"
+		};
+
+		CommandlineParser parser(arguments);
+		TFileProcessor processor(parser);
+
+		int result = -2;
+		EXPECT_NO_THROW((result = processor.run()));
+		EXPECT_EQ(1, result);
+	}
+
 	// Internal buffer is exactly as big as the requested length
 	TEST_F(TDump, BufferExact)
 	{
@@ -313,7 +328,7 @@ namespace
 			// the remainder of the input file.
 			,TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-w", "16", "$c000", "-s", "2", "-l", "8", "-i", "input", "-i", "input",  }
+				{ "TEST.EXE", "-o", "output", "-w", "size=16", "$c000", "-s", "2", "-l", "8", "-i", "input", "-i", "input",  }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31 },  { 0x41, 0x42 } }
 				,   { 0x00, 0xc0, 0x80, 0xff, 0x30, 0x31, 0x41, 0x42 }
 			)
@@ -323,7 +338,7 @@ namespace
 			// the remainder of the input file.
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-w", "16", "$c000", "-s", "2", "-l", "8", "-i", "input", "input", }
+				{ "TEST.EXE", "-o", "output", "-w", "size=16", "$c000", "-s", "2", "-l", "8", "-i", "input", "input", }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31 },  { 0x41, 0x42 } }
 				, { 0x00, 0xc0, 0x80, 0xff, 0x30, 0x31, 0x41, 0x42 }
 			)
@@ -331,7 +346,7 @@ namespace
 			// Hex dump with default settings (8 columns, cbm hex)
 			,TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "8", "hex", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "8", "hex", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
@@ -343,7 +358,7 @@ R"(.byte $00, $7f, $80, $ff, $30, $31, $32, $33
 			// Hex dump in assembler format (0xxh) with a label
 			,TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "8", "hex=asm", ".byte ", "MyLabel:", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "hex=asm", "-w", "\"MyLabel:\\n\"", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x45 } }
 				, TestParameter::stringToVector
 				(
@@ -352,10 +367,21 @@ R"(MyLabel:
 )"				)
 			)
 
+			// Hex dump in assembler format only columns
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-d", "hex=asm", "", "", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(00h 7fh 80h 0ffh 30h 31h 45h
+)")
+)
+
 			// Dump in C syntax including the variable header
 			,TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "8", "hex=c", "", "const char mybuffer[] = {", "};", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "hex=c", "", "-w", "\"const char mybuffer[] = {\\n\"", "-i", "input", "-w", "\"};\\n\"", }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33 } }
 				, TestParameter::stringToVector
 				(
@@ -368,7 +394,7 @@ R"(const char mybuffer[] = {
 			// Dec dump, 7 columns unsigned
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "7", "dec", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "7", "dec", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
@@ -381,7 +407,7 @@ R"(.byte 0, 127, 128, 255, 48, 49, 50
 			// Dec dump, 7 columns unsigned
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "7", "dec=signed", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "7", "dec=signed", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x81, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
@@ -394,7 +420,7 @@ R"(.byte 0, 127, -128, -1, -127, 49, 50
 			// Bin dump
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "1", "bin", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "1", "bin", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0xaa, 0x55 } }
 				, TestParameter::stringToVector
 				(
@@ -411,7 +437,7 @@ R"(.byte %00000000
 			// Hex dump Version 1 using only columns via the data formatter
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "data", "16", "hex", "", "", "", "", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-d", "", "", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
@@ -420,14 +446,79 @@ R"($00 $7f $80 $ff $30 $31 $32 $33 $45
 				)
 			)
 
-			// Hex dump Version 1 using only columns via the data formatter
+			// Hex dump 
 			, TestParameter
 			(
-				{ "TEST.EXE", "-o", "output", "-t", "xd", "16", "hex", "-i", "input" }
+				{ "TEST.EXE", "-o", "output", "-x", "-i", "input" }
 				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
 				, TestParameter::stringToVector
 				(
-R"($00 $7f $80 $ff $30 $31 $32 $33 $45                             ....0123E
+R"(0000: 00 7f 80 ff 30 31 32 33 45                       ....0123E
+)"
+				)
+			)
+
+			// Hex dump 
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-x", "8", "hex", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(0000: 00 7f 80 ff 30 31 32 33  ....0123
+0008: 45                       E
+)"
+				)
+			)
+
+			// Hex dump 
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-x", "$8", "hex", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(0000: 00 7f 80 ff 30 31 32 33  ....0123
+0008: 45                       E
+)"
+				)
+			)
+
+			// Hex dump 
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-x", "%00001000", "32", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(00000000: 00 7f 80 ff 30 31 32 33  ....0123
+00000008: 45                       E
+)"
+				)
+			)
+
+			// Hex dump 
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-x", "08h", "0", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(00 7f 80 ff 30 31 32 33  ....0123
+45                       E
+)"
+				)
+			)
+
+			// Hex dump 
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-x", "8", "ascii=off", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(0000: 00 7f 80 ff 30 31 32 33
+0008: 45
 )"
 				)
 			)
@@ -443,14 +534,15 @@ R"($00 $7f $80 $ff $30 $31 $32 $33 $45                             ....0123E
 		processor.mInputData = params.inputData;
 
 		int result = 0xfffffffe;
-		EXPECT_NO_THROW((result = processor.run())) << "Params: " << processor.toString(params.commandLine);
+		EXPECT_NO_THROW((result = processor.run())) << "Params: " << processor.toString(params.commandLine) << "Exception on run()";
 		EXPECT_EQ(0, result) << "Params: " << processor.toString(params.commandLine);
 		ASSERT_NE(nullptr, processor.mOutputFile) << "Params: " << processor.toString(params.commandLine);
 		vector<uint8_t> outData;
-		EXPECT_NO_THROW((outData = processor.readOutputFile()));
-		size_t index = 0;
+		EXPECT_NO_THROW((outData = processor.readOutputFile())) << "Exception on read";
+		int64_t index = 0;
+		int64_t invalid_index = (size_t)-1;
 		string cmpmsg;
-		EXPECT_EQ((size_t)-1, (index = cmpVector(params.expectedData, outData, cmpmsg))) << "Params: " << processor.toString(params.commandLine) << "\n" << cmpmsg;
-		EXPECT_EQ((size_t)-1, index);
+		EXPECT_EQ(invalid_index, (index = cmpVector(params.expectedData, outData, cmpmsg))) << "Params: " << processor.toString(params.commandLine) << "\n" << cmpmsg;
+		EXPECT_EQ(invalid_index, index);
 	}
 }

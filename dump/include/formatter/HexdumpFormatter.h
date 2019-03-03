@@ -7,41 +7,62 @@ class HexdumpFormatter
 : public DataFormatter
 {
 public:
-	HexdumpFormatter(DataFormatter::ByteType type = HEX_CBM, uint16_t columns = 16, bool bShowAscii = true, bool bPetsci = false);
-	~HexdumpFormatter() override {}
+	typedef enum
+	{
+		NONE,
+		ASCII,
+		PETSCI,
+		CBM_SCREEN,			// C64, VC20, etc.
 
-	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
-	bool flush(toolslib::files::IFile *oOutput) override;
-	bool init(void) override;
-	bool finalize(toolslib::files::IFile *oOutput) override;
+		MODE_INVALID
+	} CharMode;
 
 public:
-	void setShowAscii(bool bShowAscii)
+	HexdumpFormatter(DataFormatter::ByteType type = HEX, uint16_t columns = 16, uint16_t nAdressSize = 16, CharMode nCharMode = ASCII);
+	~HexdumpFormatter() override {}
+
+	bool init(void) override;
+
+public:
+	/**
+	 * Sets the input format. i.E. if the mode is CBM_SCREEN and the char is 0x01 an 'A' is displayed.
+	 * This works only partially, because not all CBM screen characters may be displayed as a character
+	 * here.
+	 */
+	void setCharMode(CharMode nCharMode)
 	{
-		mShowAscii = bShowAscii;
+		mCharMode = nCharMode;
 	}
 
-	bool isShowAscii(void) const
+	CharMode getCharMode(void) const
 	{
-		return mShowAscii;
+		return mCharMode;
 	}
 
-	void setPetsci(bool bPetsci)
+	void setAddressSize(uint16_t nAddressSize)
 	{
-		mPetsci = bPetsci;
+		mAddressSize = nAddressSize;
 	}
 
-	bool isPetsci(void) const
+	uint16_t getAddressSize(void) const
 	{
-		return mPetsci;
+		return mAddressSize;
 	}
+
+	std::string getLinePrefix(void) const override;
+
+protected:
+	bool writeBuffer(toolslib::files::IFile *oOutput, char nNewline = '\n') override;
+	bool createColumnValue(const char *oData, const char *oEnd, std::string &oColumnValue) override;
 
 private:
 	typedef DataFormatter super;
 
 private:
-	bool mShowAscii : 1;
-	bool mPetsci : 1;		// PETSCI format if true, otherwise ASCII
+	std::string mBuffer;
+	mutable uint64_t mAddress;
+	uint16_t mAddressSize;
+	CharMode mCharMode;
 };
 
 #endif // DUMP_HEXDUMPFORMATTER_H

@@ -12,6 +12,7 @@ public:
 		DEC,
 		DEC_SIGNED,
 		BIN,
+		HEX,				// ae
 		HEX_CBM,			// $ae
 		HEX_ASM,			// 0aeh, 12h
 		HEX_C,				// 0xae
@@ -67,7 +68,7 @@ public:
 		mLinePrefix = oLinePrefix;
 	}
 
-	std::string getLinePrefix(void) const
+	virtual std::string getLinePrefix(void) const
 	{
 		return mLinePrefix;
 	}
@@ -87,13 +88,20 @@ public:
 		mColumnPrefix = oColumnPrefix;
 	}
 
-	char getColumnPrefix(void) const
+	virtual char getColumnPrefix(void) const
 	{
 		return mColumnPrefix;
 	}
 
 protected:
-	bool writeBuffer(toolslib::files::IFile *oOutput);
+	bool writeBuffer(std::string &buffer, toolslib::files::IFile *oOutput, char nNewline = '\n');
+	virtual bool writeBuffer(toolslib::files::IFile *oOutput, char nNewline = '\n');
+	virtual bool createColumnValue(const char *oData, const char *oEnd, std::string &oColumnValue);
+
+	uint16_t getCurColumn(void) const
+	{
+		return mCurColumn;
+	}
 
 private:
 	ByteType mType;
