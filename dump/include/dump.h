@@ -78,6 +78,7 @@ protected:
 	void writeData(const std::vector<std::string> &oArgs);
 	void dumpData(const std::vector<std::string> &oArgs);
 	void dumpHexdump(const std::vector<std::string> &oArgs);
+	void dumpBasic(const std::vector<std::string> &oArgs);
 
 	bool isNumber(const std::string &value) const;
 

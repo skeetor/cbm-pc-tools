@@ -446,7 +446,7 @@ R"($00 $7f $80 $ff $30 $31 $32 $33 $45
 				)
 			)
 
-			// Hex dump 
+			// Hex dump default
 			, TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-x", "-i", "input" }
@@ -458,7 +458,7 @@ R"(0000: 00 7f 80 ff 30 31 32 33 45                       ....0123E
 				)
 			)
 
-			// Hex dump 
+			// Hex dump, 8 columns
 			, TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-x", "8", "hex", "-i", "input" }
@@ -471,7 +471,7 @@ R"(0000: 00 7f 80 ff 30 31 32 33  ....0123
 				)
 			)
 
-			// Hex dump 
+			// Hex dump 8 columns
 			, TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-x", "$8", "hex", "-i", "input" }
@@ -484,7 +484,7 @@ R"(0000: 00 7f 80 ff 30 31 32 33  ....0123
 				)
 			)
 
-			// Hex dump 
+			// Hex dump 8 columns
 			, TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-x", "%00001000", "32", "-i", "input" }
@@ -497,7 +497,7 @@ R"(00000000: 00 7f 80 ff 30 31 32 33  ....0123
 				)
 			)
 
-			// Hex dump 
+			// Hex dump, no address
 			, TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-x", "08h", "0", "-i", "input" }
@@ -510,7 +510,7 @@ R"(00 7f 80 ff 30 31 32 33  ....0123
 				)
 			)
 
-			// Hex dump 
+			// Hex dump no ASCII
 			, TestParameter
 			(
 				{ "TEST.EXE", "-o", "output", "-x", "8", "ascii=off", "-i", "input" }
@@ -519,6 +519,32 @@ R"(00 7f 80 ff 30 31 32 33  ....0123
 				(
 R"(0000: 00 7f 80 ff 30 31 32 33
 0008: 45
+)"
+				)
+			)
+
+			// Basic dump default
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-b", "8", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(1000 DATA 0, 127, 128, 255, 48, 49, 50, 51
+1010 DATA 69
+)"
+				)
+			)
+
+			// Basic dump
+			, TestParameter
+			(
+				{ "TEST.EXE", "-o", "output", "-b", "8", "linennumber=100", "stepping=50", "-i", "input" }
+				, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+				, TestParameter::stringToVector
+				(
+R"(100 DATA 0, 127, 128, 255, 48, 49, 50, 51
+150 DATA 69
 )"
 				)
 			)
