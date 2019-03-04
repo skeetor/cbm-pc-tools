@@ -55,17 +55,16 @@ std::string HexdumpFormatter::getLinePrefix(void) const
 
 bool HexdumpFormatter::writeBuffer(IFile *oOutput, char nNewline)
 {
-	if (super::writeBuffer(oOutput, 0) == false)
+	char superNewline = 0;
+
+	if (getCharMode() == NONE)
+		superNewline = nNewline;
+
+	if (super::writeBuffer(oOutput, superNewline) == false)
 		return false;
 
 	if (mBuffer.empty())
 		return true;
-
-	if (getCharMode() == NONE)
-	{
-		string empty;
-		return super::writeBuffer(empty, oOutput, nNewline);
-	}
 
 	// Space is always a column separator
 	uint16_t charcolumns = 1;
@@ -105,11 +104,15 @@ bool HexdumpFormatter::createColumnValue(const char *oData, const char *oEnd, st
 	if (super::createColumnValue(oData, oEnd, oColumnValue) == false)
 		return false;
 
-	char c = *oData;
-	if (!isprint(c & 0xff))
-		c = '.';
+	if (getCharMode() != NONE)
+	{
+		char c = *oData;
+		if (!isprint(c & 0xff))
+			c = '.';
 
-	mBuffer += c;
+		mBuffer += c;
+	}
+
 	mAddress++;
 
 	return true;

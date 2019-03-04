@@ -12,6 +12,7 @@
 
 #include "formatter/DataFormatter.h"
 #include "formatter/HexdumpFormatter.h"
+#include "formatter/BasicFormatter.h"
 #include "formatter/EmptyFormatter.h"
 
 #include "dump.h"
@@ -24,64 +25,22 @@ using namespace toolslib::strings;
 
 namespace
 {
-	/**
-	 * Write data to the specified file from the vector. index specifies the starting index
-	 * in the vector.
-	 */
-	template <typename T>
-	void writeVectorData(unique_ptr<IFile> &file, size_t index, const vector<string> &numbers)
+	void parseParam(string arg, function<void(const string &param, const string &arg)> handler)
 	{
-		vector<T> values;
-
-		size_t i = index;
-		while (i < numbers.size())
+		string param;
+		size_t pos = arg.find('=');
+		if (pos != string::npos)
 		{
-			const string &nr = numbers[i];
-
-			if (nr.empty())
-				continue;
-
-			if (nr[0] == '\"')
-			{
-				bool add = true;
-				for (char c : nr)
-				{
-					if (add == true)
-					{
-						if (c == '\\')
-						{
-							add = false;
-							continue;
-						}
-
-						if (c == '\"')
-							break;
-
-						// remapData((T)c)
-						values.emplace_back((T)c);
-					}
-					else
-					{
-						add = true;
-						// remapData((T)c)
-						values.emplace_back((T)c);
-					}
-				}
-			}
-			else
-			{
-				T data = fromNumber<T>(numbers[i], nullptr);
-				values.emplace_back(data);
-			}
-			i++;
+			param = arg.substr(0, pos);
+			arg.erase(0, pos + 1);
+		}
+		else
+		{
+			param = arg;
+			arg = "";
 		}
 
-		int64_t len = (int64_t)(sizeof(T)*values.size());
-		if (file->write(&values[0], len) != len)
-		{
-			string msg = "Error writing data to file: " + file->getOpenpath();
-			throw runtime_error(msg);
-		}
+		handler(param, arg);
 	}
 }
 
@@ -183,6 +142,8 @@ void FileProcessor::inputFile(const vector<string> &oArgs)
 
 			m_formatter->format(buffer, rd, m_output.get());
 		}
+
+		m_formatter->finalize(m_output.get());
 	}
 }
 
@@ -201,18 +162,13 @@ void FileProcessor::outputFile(const vector<string> &oArgs)
 int FileProcessor::parseByteType(string param, bool bCbmDefault)
 {
 	string format;
-
-	size_t pos = param.find('=');
-	if (pos != string::npos)
-	{
-		format = param.substr(0, pos);
-		param.erase(0, pos + 1);
-	}
-	else
-	{
-		format = param;
-		param = "";
-	}
+	parseParam(param,
+		[&](const string &par, const string &arg)
+		{
+			format = par;
+			param = arg;
+		}
+	);
 
 	if (format == "dec")
 	{
@@ -243,7 +199,7 @@ int FileProcessor::parseByteType(string param, bool bCbmDefault)
 	return DataFormatter::TYPE_INVALID;
 }
 
-uint16_t FileProcessor::parseColumn(const string &value, const vector<string> &oArgs)
+uint64_t FileProcessor::parseNumber(const string &value, const vector<string> &oArgs, bool &bValid)
 {
 	if (value.empty())
 	{
@@ -252,9 +208,13 @@ uint16_t FileProcessor::parseColumn(const string &value, const vector<string> &o
 	}
 
 	if (isNumber(value))
-		return fromNumber<uint16_t>(value, nullptr, false);
+	{
+		bValid = true;
+		return fromNumber<uint64_t>(value, nullptr);
+	}
 
-	return (uint16_t)-1;
+	bValid = false;
+	return (uint64_t)-1;
 }
 
 bool FileProcessor::isNumber(const std::string &value) const
@@ -280,45 +240,36 @@ void FileProcessor::dumpData(const vector<string> &oArgs)
 	DataFormatter *formatter = new DataFormatter();
 	m_formatter.reset(formatter);
 
-	size_t i = 0;
-	string v = oArgs[i];
-
-	uint16_t columns;
-	if((columns = parseColumn(v, oArgs)) != (uint16_t)-1)
-		formatter->setColumns(columns);
-
-	i++;
-	if (i >= oArgs.size())
+	if (oArgs.empty())
 		return;
 
-	v = oArgs[i];
+	size_t i = 0;
+	string v = oArgs[i];
+	bool valid = false;
+	uint16_t columns = 0;
+
+	if(!v.empty() && (columns = (uint16_t)parseNumber(v, oArgs, valid)) != (uint16_t)-1 || valid == true)
+	{
+		formatter->setColumns(columns);
+
+		i++;
+		if (i >= oArgs.size())
+			return;
+		v = oArgs[i];
+	}
 
 	DataFormatter::ByteType type;
 	if ((type = (DataFormatter::ByteType)parseByteType(v)) != DataFormatter::TYPE_INVALID)
-		formatter->setType(type);
-	else
 	{
-		string msg = "Invalid format: " + toString(oArgs);
-		throw runtime_error(msg);
+		formatter->setType(type);
+
+		i++;
+		if (i >= oArgs.size())
+			return;
+		v = oArgs[i];
 	}
 
-	i++;
-	if (i >= oArgs.size())
-		return;
-
 	formatter->setLinePrefix(oArgs[i]);
-
-	i++;
-	if (i >= oArgs.size())
-		return;
-
-	formatter->setHeader(oArgs[i]);
-
-	i++;
-	if (i >= oArgs.size())
-		return;
-
-	formatter->setPostfix(oArgs[i]);
 
 	i++;
 	if (i >= oArgs.size())
@@ -338,126 +289,269 @@ void FileProcessor::dumpHexdump(const vector<string> &oArgs)
 	HexdumpFormatter *formatter = new HexdumpFormatter();
 	m_formatter.reset(formatter);
 
-	bool column = false;
-	bool width = false;
-	DataFormatter::ByteType type = DataFormatter::TYPE_INVALID;
+	if (oArgs.empty())
+		return;
 
-	for (const string &v : oArgs)
+	size_t i = 0;
+	string v = oArgs[i];
+	uint16_t val;
+	DataFormatter::ByteType type;
+	bool valid;
+
+	if ((val = (uint16_t)parseNumber(v, oArgs, valid)) != (uint16_t)-1 || valid == true)
 	{
-		if (v.empty())
-		{
-			string msg = "Invalid parameter: " + toString(oArgs);
-			throw runtime_error(msg);
-		}
+		formatter->setColumns(val);
 
-		if (isNumber(v))
-		{
-			if (column == false)
-			{
-				column = true;
-				uint16_t val;
-				if ((val = parseColumn(v, oArgs)) != (uint16_t)-1)
-					formatter->setColumns(val);
-			}
-			else if (width == false)
-			{
-				width = true;
+		i++;
+		if (i >= oArgs.size())
+			return;
 
-				uint16_t val;
-				if ((val = parseColumn(v, oArgs)) != (uint16_t)-1)
-					formatter->setAddressSize(val);
-			}
-			else
-			{
-				string msg = "Invalid parameter: " + toString(oArgs);
-				throw runtime_error(msg);
-			}
-		}
-		else
+		v = oArgs[i];
+	}
+
+	if ((type = (DataFormatter::ByteType)parseByteType(v, false)) != DataFormatter::TYPE_INVALID)
+	{
+		formatter->setType(type);
+
+		i++;
+		if (i >= oArgs.size())
+			return;
+
+		v = oArgs[i];
+	}
+
+	parseParam(v,
+		[&](const string &format, const string &arg)
 		{
-			if (type == DataFormatter::TYPE_INVALID)
+			if (format == "ascii")
 			{
-				if ((type = (DataFormatter::ByteType)parseByteType(v, false)) != DataFormatter::TYPE_INVALID)
+				if (arg == "off")
+					formatter->setCharMode(HexdumpFormatter::NONE);
+				else
 				{
-					formatter->setType(type);
-					continue;
+					string msg = "Not yet implemented: " + arg;
+					throw runtime_error(msg);
 				}
-			}
 
-			string param = v;
-			string format;
-			size_t pos = param.find('=');
-			if (pos != string::npos)
-			{
-				format = param.substr(0, pos);
-				param.erase(0, pos + 1);
-			}
+				i++;
+				if (i >= oArgs.size())
+					return;
 
-			if(format != "ascii")
-			{
-				string msg = "Invalid parameter: " + toString(oArgs);
-				throw runtime_error(msg);
-			}
-
-			if (param == "off")
-				formatter->setCharMode(HexdumpFormatter::NONE);
-			else
-			{
-				string msg = "Not yet implemented: " + param;
-				throw runtime_error(msg);
+				v = oArgs[i];
 			}
 		}
+	);
+
+	if ((val = (uint16_t)parseNumber(v, oArgs, valid)) != (uint16_t)-1 || valid == true)
+		formatter->setAddressSize(val);
+}
+
+void FileProcessor::dumpBasic(const vector<string> &oArgs)
+{
+	m_formatter->flush(m_output.get());
+
+	BasicFormatter *formatter = new BasicFormatter();
+	m_formatter.reset(formatter);
+
+	if (oArgs.empty())
+		return;
+
+	size_t i = 0;
+	string v = oArgs[i];
+	uint16_t val;
+	DataFormatter::ByteType type;
+	bool valid;
+
+	if ((val = (uint16_t)parseNumber(v, oArgs, valid)) != (uint16_t)-1 || valid == true)
+	{
+		formatter->setColumns(val);
+
+		i++;
+		if (i >= oArgs.size())
+			return;
+
+		v = oArgs[i];
 	}
 }
 
 void FileProcessor::skipOffset(const vector<string> &oArgs)
 {
-	const string &number = oArgs[0];
-
-	m_startPos = fromNumber<int64_t>(number, nullptr, false);
+	bool valid;
+	m_startPos = parseNumber(oArgs[0], oArgs, valid);
+	if (!valid)
+	{
+		string msg = "Invalid Argument: " + oArgs[0];
+		throw runtime_error(msg);
+	}
 }
 
 void FileProcessor::maxLength(const vector<string> &oArgs)
 {
-	const string &number = oArgs[0];
+	bool valid;
+	m_maxLen = parseNumber(oArgs[0], oArgs, valid);
+	if (!valid)
+	{
+		string msg = "Invalid Argument: " + oArgs[0];
+		throw runtime_error(msg);
+	}
+}
 
-	m_maxLen = fromNumber<int64_t>(number, nullptr, false);
+void FileProcessor::addVectorValue(vector<uint8_t> &values, uint64_t value, uint16_t size) const
+{
+	uint8_t buffer[sizeof(uint64_t)];
+
+	switch (size)
+	{
+		case 8:
+			size = 1;
+			*(uint8_t *)(&buffer[0]) = (uint8_t)(value & 0xff);
+		break;
+
+		case 16:
+			size = 2;
+			*(uint16_t *)(&buffer[0]) = (uint16_t)(value & 0xffff);
+		break;
+
+		case 32:
+			size = 4;
+			*(uint32_t *)(&buffer[0]) = (uint32_t)(value & 0xffffffff);
+		break;
+
+		case 64:
+			size = 8;
+			*(uint64_t *)(&buffer[0]) = value;
+		break;
+
+		default:
+			string msg = "Invalid data size spezified (8,16,32,64): " + to_string(size);
+			throw runtime_error(msg);
+	}
+
+	for (uint16_t i = 0; i < size; i++)
+		values.emplace_back(buffer[i]);
+}
+
+bool FileProcessor::addVectorString(std::vector<uint8_t> &values, const std::string &value, uint16_t size) const
+{
+	if (value.empty())
+		return false;
+
+	bool charmode = false;
+	bool first = true;
+	bool escaped = false;
+
+	for (char c : value)
+	{
+		if (first)
+		{
+			if (c == '\'')
+				charmode = true;
+			else if (c != '\"')
+				return false;
+
+			first = false;
+
+			continue;
+		}
+
+		if (escaped)
+		{
+			switch (c)
+			{
+				case 'n':
+					c = '\n';
+				break;
+				
+				case 'r':
+					c = '\r';
+				break;
+
+				case 't':
+					c = '\t';
+				break;
+			}
+
+			escaped = false;
+		}
+		else
+		{
+			if (c == '\\')
+			{
+				escaped = true;
+				continue;
+			}
+
+			if (c == '\"')
+				break;
+		}
+
+		addVectorValue(values, c, size);
+
+		if(charmode)
+			break;
+	}
+
+	return true;
+}
+
+std::vector<uint8_t> FileProcessor::getVectorData(const std::vector<string> &oData, size_t index) const
+{
+	vector<uint8_t> values;
+	uint16_t size = 8;
+
+	while (index < oData.size())
+	{
+		string v = oData[index++];
+
+		if (v.empty())
+			continue;
+
+		if(addVectorString(values, v, size))
+			continue;
+
+		string param;
+		parseParam(v,
+			[&](const string &par, const string &arg)
+			{
+				if (arg.empty())
+					v = par;
+				else
+				{
+					param = par;
+					v = arg;
+				}
+			}
+		);
+
+		if (param == "size")
+		{
+			size = 8;
+			if (!v.empty())
+			{
+				if (isNumber(v))
+					size = fromNumber<uint16_t>(v, nullptr);
+				else
+					size = 0;
+			}
+			continue;
+		}
+
+		// Value has to be a number
+		uint64_t data = fromNumber<uint64_t>(v, nullptr);
+		addVectorValue(values, data, size);
+	}
+
+	return values;
 }
 
 void FileProcessor::writeData(const vector<string> &oArgs)
 {
-	const string &number = oArgs[0];
-	if (isdigit(number[0]))
+	const vector<uint8_t> &values = getVectorData(oArgs);
+
+	int64_t len = (int64_t)(sizeof(uint8_t)*values.size());
+	if (len != 0 && m_output->write(&values[0], len) != len)
 	{
-		uint16_t bitness = fromNumber<uint16_t>(number, nullptr, false);
-		switch (bitness)
-		{
-			case 8:
-				writeVectorData<uint8_t>(m_output, 1, oArgs);
-			break;
-
-			case 16:
-				writeVectorData<uint16_t>(m_output, 1, oArgs);
-			break;
-
-			case 32:
-				writeVectorData<uint32_t>(m_output, 1, oArgs);
-			break;
-
-			case 64:
-				writeVectorData<uint64_t>(m_output, 1, oArgs);
-			break;
-
-			default:
-			{
-				string msg = "Bitness must be 8,16,,32 or 64 : " + number;
-				throw runtime_error(msg);
-			}
-		}
-	}
-	else
-	{
-		string msg = "Insert data from file not yet implemented." + number;
+		string msg = "Error writing data to file: " + m_output->getOpenpath();
 		throw runtime_error(msg);
 	}
 }
@@ -471,62 +565,71 @@ void FileProcessor::createCommandlineOptions(CommandlineParser &oParser)
 
 	oParser.addOption("help", "", "Print help")
 		.arguments(0, 0)
-		;
+	;
 
 	oParser.addOption("input", "i", "Inputfile")
 		.multiple()
 		.mandatory()
 		.arguments(1, CommandlineParser::UNLIMITED_ARGS)
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); inputFile(oOption.values().back()); })
-		;
+	;
 
 	oParser.addOption("output", "o", "Outputfile")
 		.multiple()
 		.arguments()
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); outputFile(oOption.values().back()); })
-		;
+	;
 
 	oParser.addOption("data", "d",
 R"(Output format type
-    [<columns>] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [<lineprefix>(default=".byte") <header> <postfix> <column separator>]
+    [<columns>] [dec[=unsigned(default)|signed]|bin|hex[=cbm(default)|asm|c] [<lineprefix>(default=".byte") <line prefix> <column postfix>]
        <columns> = number of columns per line
        cbm = '$a2', asm = '0a2h', c = '0xa2'
        <lineprefix> = user defined string, default is '.byte')
        <header> = printed first (optional)
        <postfix> = added after the last line (optional)
-       <column separator> = added after the last line (optional)
+       <column separator> = printed after each column (optional)
 )"
-			)
-			.arguments(0, 6)
-			.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); dumpData(oOption.values().back()); })
-		;
+		)
+		.arguments(0, 5)
+		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); dumpData(oOption.values().back()); })
+	;
 
 	oParser.addOption("hexdump", "x",
-R"(Output format type
-    [columns] [dec[=unsigned(default)|signed]|bin|hex[=cbm|asm|c] [ascii=screen|petsci|off] [<addresswidth> = 0|16|32|64]
+R"(Dumps the file with address and character display
+    [columns N:16=default] [dec[=unsigned(default)|signed]|bin|hex[=cbm|asm|c] [ascii=screen|petsci|off] [<addresswidth> = 0|16(defaut)|32|64]
 )"
 		)
 		.arguments(0, 3)
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); dumpHexdump(oOption.values().back()); })
-;
+	;
+
+	oParser.addOption("basic", "b",
+		R"(Convert to Basic DATA lines
+    [columns N:16=default] [dec[=unsigned(default)|signed]] [type=ansi|cbm] [linennumber=N (1000=default)] [stepping=N (10=default)]
+)"
+		)
+		.arguments(0, 6)
+		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); dumpBasic(oOption.values().back()); })
+	;
 
 	oParser.addOption("skip", "s", "Skip first N bytes from inputfile")
 		.multiple()
 		.arguments()
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); skipOffset(oOption.values().back()); })
-		;
+	;
 
 	oParser.addOption("length", "l", "Write only N bytes")
 		.multiple()
 		.arguments()
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); maxLength(oOption.values().back()); })
-		;
+	;
 
-	oParser.addOption("write", "w", "Write custom data. First value may be 8,16,32,64 to specify the bitness")
+	oParser.addOption("write", "w", "Write custom data. First value can specify the size of the values [size=8(default)|16|32|64]")
 		.multiple()
 		.arguments(1, CommandlineParser::UNLIMITED_ARGS)
 		.callback([&](CommandlineParser &oParser, const CommandlineParser::Option &oOption) { UNUSED(oParser); writeData(oOption.values().back()); })
-		;
+	;
 }
 
 int FileProcessor::status(void)

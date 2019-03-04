@@ -124,6 +124,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dump.cpp" />
+    <ClCompile Include="formatter\BasicFormatter.cpp" />
     <ClCompile Include="formatter\DataFormatter.cpp" />
     <ClCompile Include="formatter\EmptyFormatter.cpp" />
     <ClCompile Include="formatter\HexdumpFormatter.cpp" />
@@ -135,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\dump.h" />
+    <ClInclude Include="include\formatter\BasicFormatter.h" />
     <ClInclude Include="include\formatter\DataFormatter.h" />
     <ClInclude Include="include\formatter\EmptyFormatter.h" />
     <ClInclude Include="include\formatter\Formatter.h" />
