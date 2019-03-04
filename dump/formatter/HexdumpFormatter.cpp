@@ -30,7 +30,7 @@ std::string HexdumpFormatter::getLinePrefix(void) const
 	string address;
 	address.resize(24);
 	address[0] = 0;
-	int64_t len = 0;
+	size_t len = 0;
 
 	switch (mAddressSize)
 	{
