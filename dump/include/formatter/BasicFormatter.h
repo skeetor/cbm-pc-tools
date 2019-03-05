@@ -36,16 +36,12 @@ public:
 
 	std::string getLinePrefix(void) const override;
 
-protected:
-	bool writeBuffer(toolslib::files::IFile *oOutput, char nNewline = '\n') override;
-
 private:
 	typedef DataFormatter super;
 
 private:
-	std::string mBuffer;
 	uint16_t mStartLine;
-	uint16_t mCurLine;
+	mutable uint16_t mCurLine;
 	uint16_t mStepping;
 };
 

@@ -21,7 +21,7 @@ public:
 	} ByteType;
 
 public:
-	DataFormatter(ByteType type = HEX_CBM, uint16_t columns = 16, const std::string &lineprefix = ".byte ", const std::string &header = "", const std::string &postfix = "", char columnPrefix = ',');
+	DataFormatter(ByteType type = HEX_CBM, uint16_t columns = 16, const std::string &lineprefix = ".byte ", char columnPrefix = ',');
 	~DataFormatter() override {}
 
 	bool format(const char *oData, int64_t nDataSize, toolslib::files::IFile *oOutput) override;
@@ -53,16 +53,6 @@ public:
 		mColumns = columns;
 	}
 
-	void setHeader(const std::string &oHeader)
-	{
-		mHeader = oHeader;
-	}
-
-	std::string getHeader(void) const
-	{
-		return mHeader;
-	}
-
 	void setLinePrefix(const std::string &oLinePrefix)
 	{
 		mLinePrefix = oLinePrefix;
@@ -71,16 +61,6 @@ public:
 	virtual std::string getLinePrefix(void) const
 	{
 		return mLinePrefix;
-	}
-
-	void setPostfix(const std::string &oPostfix)
-	{
-		mPostfix = oPostfix;
-	}
-
-	std::string getPostfix(void) const
-	{
-		return mPostfix;
 	}
 
 	void setColumnPrefix(char oColumnPrefix)
@@ -108,11 +88,8 @@ private:
 	uint16_t mColumns;
 	uint16_t mCurColumn;
 	std::string mBuffer;
-	std::string mHeader;
 	std::string mLinePrefix;
-	std::string mPostfix;
 	char mColumnPrefix;
-	bool mAddHeader:1;
 };
 
 #endif // DUMP_DATAFORMATTER_H

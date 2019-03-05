@@ -10,7 +10,7 @@ using namespace toolslib;
 using namespace toolslib::files;
 
  HexdumpFormatter::HexdumpFormatter(DataFormatter::ByteType type, uint16_t columns, uint16_t nAdressSize, CharMode nCharMode)
-: DataFormatter(type, columns, "", "", "", 0)
+: DataFormatter(type, columns, "", 0)
 , mAddress(0)
 , mAddressSize(nAdressSize)
 , mCharMode(nCharMode)
