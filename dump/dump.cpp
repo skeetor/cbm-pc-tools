@@ -372,6 +372,60 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 
 		v = oArgs[i];
 	}
+
+	if ((type = (DataFormatter::ByteType)parseByteType(v, false)) != DataFormatter::TYPE_INVALID)
+	{
+		formatter->setType(type);
+
+		i++;
+		if (i >= oArgs.size())
+			return;
+	}
+
+	for (; i < oArgs.size(); i++)
+	{
+		v = oArgs[i];
+
+		//[type = ansi | cbm][linennumber = N(1000 = default)][stepping = N(10 = default)]
+			parseParam(v,
+				[&](const string &param, const string &arg)
+				{
+					if (param == "type")
+					{
+						if (arg.empty() || arg == "ansi")
+						{
+						}
+						else if (arg == "cbm")
+						{
+
+						}
+						else
+						{
+							string msg = "Invalid format: " + toString(oArgs);
+							throw runtime_error(msg);
+						}
+					}
+					else if (param == "linennumber")
+					{
+						if ((val = (uint16_t)parseNumber(arg, oArgs, valid)) != (uint16_t)-1 || valid == true)
+							formatter->setStartLine(val);
+						else
+						{
+							string msg = "Invalid format: " + toString(oArgs);
+							throw runtime_error(msg);
+						}
+					}
+					else if (param == "stepping")
+					{
+					}
+					else
+					{
+						string msg = "Invalid format: " + toString(oArgs);
+						throw runtime_error(msg);
+					}
+				}
+		);
+	}
 }
 
 void FileProcessor::skipOffset(const vector<string> &oArgs)
