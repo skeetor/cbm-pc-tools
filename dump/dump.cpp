@@ -350,8 +350,9 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 {
 	m_formatter->flush(m_output.get());
 
-	BasicFormatter *formatter = new BasicFormatter();
-	m_formatter.reset(formatter);
+	BasicFormatter *basicformatter = new BasicFormatter();
+	BasicFormatter *cbmformatter = new BasicFormatter();
+	m_formatter.reset(basicformatter);
 
 	if (oArgs.empty())
 		return;
@@ -364,7 +365,8 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 
 	if ((val = (uint16_t)parseNumber(v, oArgs, valid)) != (uint16_t)-1 || valid == true)
 	{
-		formatter->setColumns(val);
+		basicformatter->setColumns(val);
+		cbmformatter->setColumns(val);
 
 		i++;
 		if (i >= oArgs.size())
@@ -375,7 +377,8 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 
 	if ((type = (DataFormatter::ByteType)parseByteType(v, false)) != DataFormatter::TYPE_INVALID)
 	{
-		formatter->setType(type);
+		basicformatter->setType(type);
+		cbmformatter->setType(type);
 
 		i++;
 		if (i >= oArgs.size())
@@ -393,12 +396,9 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 					if (param == "type")
 					{
 						if (arg.empty() || arg == "ansi")
-						{
-						}
+							m_formatter.reset(basicformatter);
 						else if (arg == "cbm")
-						{
-
-						}
+							m_formatter.reset(cbmformatter);
 						else
 						{
 							string msg = "Invalid format: " + toString(oArgs);
@@ -408,7 +408,10 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 					else if (param == "linennumber")
 					{
 						if ((val = (uint16_t)parseNumber(arg, oArgs, valid)) != (uint16_t)-1 || valid == true)
-							formatter->setStartLine(val);
+						{
+							basicformatter->setStartLine(val);
+							cbmformatter->setStartLine(val);
+						}
 						else
 						{
 							string msg = "Invalid format: " + toString(oArgs);
@@ -417,6 +420,16 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 					}
 					else if (param == "stepping")
 					{
+						if ((val = (uint16_t)parseNumber(arg, oArgs, valid)) != (uint16_t)-1 || valid == true)
+						{
+							basicformatter->setStepping(val);
+							cbmformatter->setStepping(val);
+						}
+						else
+						{
+							string msg = "Invalid format: " + toString(oArgs);
+							throw runtime_error(msg);
+						}
 					}
 					else
 					{

@@ -11,12 +11,13 @@ public:
 	BasicFormatter(DataFormatter::ByteType type = DEC, uint16_t columns = 16, uint16_t startLine = 1000, uint16_t stepping = 10);
 	~BasicFormatter() override {}
 
-	bool init(void) override;
-
 public:
+	std::string getLinePrefix(void) const override;
+
 	void setStartLine(uint16_t nStartLine)
 	{
 		mStartLine = nStartLine;
+		mCurLine = mStartLine;
 	}
 
 	uint16_t getStartLine(void) const
@@ -33,8 +34,6 @@ public:
 	{
 		return mStepping;
 	}
-
-	std::string getLinePrefix(void) const override;
 
 private:
 	typedef DataFormatter super;

@@ -17,13 +17,6 @@ using namespace toolslib::files;
 {
 }
 
-bool BasicFormatter::init(void)
-{
-	mCurLine = mStartLine;
-
-	return super::init();
-}
-
 std::string BasicFormatter::getLinePrefix(void) const
 {
 	string line = to_string(mCurLine) + " DATA ";
