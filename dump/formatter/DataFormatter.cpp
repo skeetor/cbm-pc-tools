@@ -164,10 +164,16 @@ bool DataFormatter::init(void)
 
 bool DataFormatter::finalize(IFile *oOutput)
 {
-	return writeBuffer(oOutput);
+	if(!mBuffer.empty())
+		return writeBuffer(oOutput);
+
+	return true;
 }
 
 bool DataFormatter::flush(IFile *oOutput)
 {
-	return writeBuffer(oOutput);
+	if (!mBuffer.empty())
+		return writeBuffer(oOutput);
+
+	return true;
 }

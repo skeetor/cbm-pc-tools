@@ -42,6 +42,9 @@
     <ClCompile Include="..\formatter\BasicFormatter.cpp">
       <Filter>Source Files\AppSrc</Filter>
     </ClCompile>
+    <ClCompile Include="..\formatter\CBMFormatter.cpp">
+      <Filter>Source Files\AppSrc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

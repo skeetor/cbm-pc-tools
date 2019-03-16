@@ -13,6 +13,7 @@
 #include "formatter/DataFormatter.h"
 #include "formatter/HexdumpFormatter.h"
 #include "formatter/BasicFormatter.h"
+#include "formatter/CBMFormatter.h"
 #include "formatter/EmptyFormatter.h"
 
 #include "dump.h"
@@ -42,6 +43,23 @@ namespace
 
 		handler(param, arg);
 	}
+
+	class Initalizer
+	{
+	public:
+		Initalizer(unique_ptr<Formatter> *formatter)
+		: m_formatter(formatter)
+		{
+		}
+
+		~Initalizer()
+		{
+			(*m_formatter)->init();
+		}
+
+	private:
+		unique_ptr<Formatter> *m_formatter;
+	};
 }
 
 FileProcessor::FileProcessor(CommandlineParser &parser)
@@ -239,6 +257,7 @@ void FileProcessor::dumpData(const vector<string> &oArgs)
 
 	DataFormatter *formatter = new DataFormatter();
 	m_formatter.reset(formatter);
+	Initalizer init(&m_formatter);
 
 	if (oArgs.empty())
 		return;
@@ -288,6 +307,7 @@ void FileProcessor::dumpHexdump(const vector<string> &oArgs)
 
 	HexdumpFormatter *formatter = new HexdumpFormatter();
 	m_formatter.reset(formatter);
+	Initalizer init(&m_formatter);
 
 	if (oArgs.empty())
 		return;
@@ -350,9 +370,9 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 {
 	m_formatter->flush(m_output.get());
 
-	BasicFormatter *basicformatter = new BasicFormatter();
-	BasicFormatter *cbmformatter = new BasicFormatter();
-	m_formatter.reset(basicformatter);
+	BasicFormatter *formatter = new BasicFormatter();
+	m_formatter.reset(formatter);
+	Initalizer init(&m_formatter);
 
 	if (oArgs.empty())
 		return;
@@ -365,8 +385,7 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 
 	if ((val = (uint16_t)parseNumber(v, oArgs, valid)) != (uint16_t)-1 || valid == true)
 	{
-		basicformatter->setColumns(val);
-		cbmformatter->setColumns(val);
+		formatter->setColumns(val);
 
 		i++;
 		if (i >= oArgs.size())
@@ -377,8 +396,7 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 
 	if ((type = (DataFormatter::ByteType)parseByteType(v, false)) != DataFormatter::TYPE_INVALID)
 	{
-		basicformatter->setType(type);
-		cbmformatter->setType(type);
+		formatter->setType(type);
 
 		i++;
 		if (i >= oArgs.size())
@@ -389,47 +407,19 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 	{
 		v = oArgs[i];
 
-		//[type = ansi | cbm][linennumber = N(1000 = default)][stepping = N(10 = default)]
-			parseParam(v,
-				[&](const string &param, const string &arg)
+		parseParam(v,
+			[&](const string &param, const string &arg)
+			{
+				if (param == "type")
 				{
-					if (param == "type")
+					if (arg.empty() || arg == "ansi")
 					{
-						if (arg.empty() || arg == "ansi")
-							m_formatter.reset(basicformatter);
-						else if (arg == "cbm")
-							m_formatter.reset(cbmformatter);
-						else
-						{
-							string msg = "Invalid format: " + toString(oArgs);
-							throw runtime_error(msg);
-						}
+						// Nothing to do...
 					}
-					else if (param == "linennumber")
+					else if (arg == "cbm")
 					{
-						if ((val = (uint16_t)parseNumber(arg, oArgs, valid)) != (uint16_t)-1 || valid == true)
-						{
-							basicformatter->setStartLine(val);
-							cbmformatter->setStartLine(val);
-						}
-						else
-						{
-							string msg = "Invalid format: " + toString(oArgs);
-							throw runtime_error(msg);
-						}
-					}
-					else if (param == "stepping")
-					{
-						if ((val = (uint16_t)parseNumber(arg, oArgs, valid)) != (uint16_t)-1 || valid == true)
-						{
-							basicformatter->setStepping(val);
-							cbmformatter->setStepping(val);
-						}
-						else
-						{
-							string msg = "Invalid format: " + toString(oArgs);
-							throw runtime_error(msg);
-						}
+						formatter = new CBMFormatter(*formatter);
+						m_formatter.reset(formatter);
 					}
 					else
 					{
@@ -437,6 +427,42 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 						throw runtime_error(msg);
 					}
 				}
+				else if (param == "linennumber")
+				{
+					if ((val = (uint16_t)parseNumber(arg, oArgs, valid)) != (uint16_t)-1 || valid == true)
+						formatter->setStartLine(val);
+					else
+					{
+						string msg = "Invalid format: " + toString(oArgs);
+						throw runtime_error(msg);
+					}
+				}
+				else if (param == "stepping")
+				{
+					if ((val = (uint16_t)parseNumber(arg, oArgs, valid)) != (uint16_t)-1 || valid == true)
+						formatter->setStepping(val);
+					else
+					{
+						string msg = "Invalid format: " + toString(oArgs);
+						throw runtime_error(msg);
+					}
+				}
+				else if (param == "address")
+				{
+					if ((val = (uint16_t)parseNumber(arg, oArgs, valid)) != (uint16_t)-1 || valid == true)
+						formatter->setStartAddress(val);
+					else
+					{
+						string msg = "Invalid format: " + toString(oArgs);
+						throw runtime_error(msg);
+					}
+				}
+				else
+				{
+					string msg = "Invalid format: " + toString(oArgs);
+					throw runtime_error(msg);
+				}
+			}
 		);
 	}
 }
@@ -461,41 +487,6 @@ void FileProcessor::maxLength(const vector<string> &oArgs)
 		string msg = "Invalid Argument: " + oArgs[0];
 		throw runtime_error(msg);
 	}
-}
-
-void FileProcessor::addVectorValue(vector<uint8_t> &values, uint64_t value, uint16_t size) const
-{
-	uint8_t buffer[sizeof(uint64_t)];
-
-	switch (size)
-	{
-		case 8:
-			size = 1;
-			*(uint8_t *)(&buffer[0]) = (uint8_t)(value & 0xff);
-		break;
-
-		case 16:
-			size = 2;
-			*(uint16_t *)(&buffer[0]) = (uint16_t)(value & 0xffff);
-		break;
-
-		case 32:
-			size = 4;
-			*(uint32_t *)(&buffer[0]) = (uint32_t)(value & 0xffffffff);
-		break;
-
-		case 64:
-			size = 8;
-			*(uint64_t *)(&buffer[0]) = value;
-		break;
-
-		default:
-			string msg = "Invalid data size spezified (8,16,32,64): " + to_string(size);
-			throw runtime_error(msg);
-	}
-
-	for (uint16_t i = 0; i < size; i++)
-		values.emplace_back(buffer[i]);
 }
 
 bool FileProcessor::addVectorString(std::vector<uint8_t> &values, const std::string &value, uint16_t size) const
@@ -552,7 +543,7 @@ bool FileProcessor::addVectorString(std::vector<uint8_t> &values, const std::str
 				break;
 		}
 
-		addVectorValue(values, c, size);
+		putVectorValue(values, c, size);
 
 		if(charmode)
 			break;
@@ -605,7 +596,7 @@ std::vector<uint8_t> FileProcessor::getVectorData(const std::vector<string> &oDa
 
 		// Value has to be a number
 		uint64_t data = fromNumber<uint64_t>(v, nullptr);
-		addVectorValue(values, data, size);
+		putVectorValue(values, data, size);
 	}
 
 	return values;
@@ -717,7 +708,6 @@ int FileProcessor::run(void)
 	if (m_parser.hasArgument("help"))
 		return 1;
 
-	m_formatter->finalize(m_output.get());
 	m_output->close();
 
 	if (m_result)

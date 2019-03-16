@@ -74,7 +74,7 @@ public:
 	}
 
 protected:
-	bool writeBuffer(std::string &buffer, toolslib::files::IFile *oOutput, char nNewline = '\n');
+	virtual bool writeBuffer(std::string &buffer, toolslib::files::IFile *oOutput, char nNewline = '\n');
 	virtual bool writeBuffer(toolslib::files::IFile *oOutput, char nNewline = '\n');
 	virtual bool createColumnValue(const char *oData, const char *oEnd, std::string &oColumnValue);
 

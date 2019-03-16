@@ -6,6 +6,42 @@
 #include "toolslib/toolslib_api.h"
 #include "toolslib/files/IFile.h"
 
+template <typename T>
+void putVectorValue(T &values, uint64_t value, uint16_t size)
+{
+	uint8_t buffer[sizeof(uint64_t)];
+
+	switch (size)
+	{
+	case 8:
+		size = 1;
+		*(uint8_t *)(&buffer[0]) = (uint8_t)(value & 0xff);
+		break;
+
+	case 16:
+		size = 2;
+		*(uint16_t *)(&buffer[0]) = (uint16_t)(value & 0xffff);
+		break;
+
+	case 32:
+		size = 4;
+		*(uint32_t *)(&buffer[0]) = (uint32_t)(value & 0xffffffff);
+		break;
+
+	case 64:
+		size = 8;
+		*(uint64_t *)(&buffer[0]) = value;
+		break;
+
+	default:
+		string msg = "Invalid data size spezified (8,16,32,64): " + to_string(size);
+		throw runtime_error(msg);
+	}
+
+	for (uint16_t i = 0; i < size; i++)
+		values.push_back(buffer[i]);
+}
+
 class Formatter
 {
 public:
