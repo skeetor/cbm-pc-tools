@@ -377,6 +377,7 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 	if (oArgs.empty())
 		return;
 
+	bool address = false;
 	size_t i = 0;
 	string v = oArgs[i];
 	uint16_t val;
@@ -420,6 +421,7 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 					{
 						formatter = new CBMFormatter(*formatter);
 						m_formatter.reset(formatter);
+						address = true;
 					}
 					else
 					{
@@ -449,11 +451,15 @@ void FileProcessor::dumpBasic(const vector<string> &oArgs)
 				}
 				else if (param == "address")
 				{
-					if ((val = (uint16_t)parseNumber(arg, oArgs, valid)) != (uint16_t)-1 || valid == true)
+					if (address == true && ((val = (uint16_t)parseNumber(arg, oArgs, valid)) != (uint16_t)-1 || valid == true))
 						formatter->setStartAddress(val);
 					else
 					{
-						string msg = "Invalid format: " + toString(oArgs);
+						string msg;
+						if(address == false)
+							msg = "Address not allowed with ANSI Basic";
+						else
+							msg = "Invalid format: " + toString(oArgs);
 						throw runtime_error(msg);
 					}
 				}

@@ -125,10 +125,11 @@ namespace
 	class TestParameter
 	{
 	public:
-		TestParameter(const vector<string>& commandline, const vector<vector<uint8_t>> &input, const vector<uint8_t> &expected)
-		: commandLine(commandline)
-		, expectedData(expected)
-		, inputData(input)
+		TestParameter(const vector<string>& commandline, const vector<vector<uint8_t>> &input, const vector<uint8_t> &expected, bool bThrowsException = false)
+			: commandLine(commandline)
+			, expectedData(expected)
+			, inputData(input)
+			, throwsException(bThrowsException)
 		{
 		}
 
@@ -154,6 +155,7 @@ namespace
 		vector<string> commandLine;
 		vector<uint8_t> expectedData;
 		vector<vector<uint8_t>> inputData;
+		bool throwsException:1;
 	};
 
 	class TDump
@@ -549,6 +551,15 @@ R"(100 DATA 0, 127, 128, 255, 48, 49, 50, 51
 				)
 			)
 
+				// Basic dump throws exception because address used with ANSI dump
+				, TestParameter
+				(
+					{ "TEST.EXE", "-o", "output", "-b", "8", "address=0x0801", "linennumber=100", "stepping=50", "type=ansi", "-i", "input" }
+					, { { 0x00, 0x7f, 0x80, 0xff, 0x30, 0x31, 0x32, 0x33, 0x45 } }
+					, { }
+					, true
+				)
+
 			// Basic dump
 			, TestParameter
 			(
@@ -565,7 +576,24 @@ R"(100 DATA 0, 127, 128, 255, 48, 49, 50, 51
 					0x00, 0x00
 				}
 			)
+
+		// Basic dump, default address
+		, TestParameter
+		(
+			{ "TEST.EXE", "-o", "output", "-b", "10", "type=cbm", "linennumber=10", "stepping=10", "-i", "input" }
+			, { { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 } }
+			, {
+				0x01, 0x08,
+				0x25, 0x08, 0x0a, 0x00, 0x83, 0x20, 0x31, 0x2c, 0x20, 0x32, 0x2c, 0x20, 0x33, 0x2c, 0x20, 0x34, 0x2c, 0x20, 0x35,
+					0x2c, 0x20, 0x36, 0x2c, 0x20, 0x37, 0x2c, 0x20, 0x38, 0x2c, 0x20, 0x39, 0x2c, 0x20, 0x31, 0x30, 0x00,
+				0x52, 0x08, 0x14, 0x00, 0x83, 0x20, 0x31, 0x31, 0x2c, 0x20, 0x31, 0x32, 0x2c, 0x20, 0x31, 0x33, 0x2c, 0x20, 0x31, 0x34, 0x2c, 0x20, 0x31, 0x35,
+					0x2c, 0x20, 0x31, 0x36, 0x2c, 0x20, 0x31, 0x37, 0x2c, 0x20, 0x31, 0x38, 0x2c, 0x20, 0x31, 0x39, 0x2c, 0x20, 0x32, 0x30, 0x00,
+				0x7f, 0x08, 0x1e, 0x00, 0x83, 0x20, 0x32, 0x31, 0x2c, 0x20, 0x32, 0x32, 0x2c, 0x20, 0x32, 0x33, 0x2c, 0x20, 0x32, 0x34, 0x2c, 0x20, 0x32, 0x35,
+					0x2c, 0x20, 0x32, 0x36, 0x2c, 0x20, 0x32, 0x37, 0x2c, 0x20, 0x32, 0x38, 0x2c, 0x20, 0x32, 0x39, 0x2c, 0x20, 0x33, 0x30, 0x00,
+				0x00, 0x00
+			}
 		)
+	)
 	);
 
 	TEST_P(TDump, Parameters)
@@ -577,15 +605,22 @@ R"(100 DATA 0, 127, 128, 255, 48, 49, 50, 51
 		processor.mInputData = params.inputData;
 
 		int result = 0xfffffffe;
-		EXPECT_NO_THROW((result = processor.run())) << "Params: " << processor.toString(params.commandLine) << "Exception on run()";
-		EXPECT_EQ(0, result) << "Params: " << processor.toString(params.commandLine);
-		ASSERT_NE(nullptr, processor.mOutputFile) << "Params: " << processor.toString(params.commandLine);
-		vector<uint8_t> outData;
-		EXPECT_NO_THROW((outData = processor.readOutputFile())) << "Exception on read";
-		int64_t index = 0;
-		int64_t invalid_index = (size_t)-1;
-		string cmpmsg;
-		EXPECT_EQ(invalid_index, (index = cmpVector(params.expectedData, outData, cmpmsg))) << "Params: " << processor.toString(params.commandLine) << "\n" << cmpmsg;
-		EXPECT_EQ(invalid_index, index);
+		if (params.throwsException)
+		{
+			EXPECT_THROW((result = processor.run()), runtime_error) << "Params: " << processor.toString(params.commandLine) << "Exception on run()";
+		}
+		else
+		{
+			EXPECT_NO_THROW((result = processor.run())) << "Params: " << processor.toString(params.commandLine) << "Exception on run()";
+			EXPECT_EQ(0, result) << "Params: " << processor.toString(params.commandLine);
+			ASSERT_NE(nullptr, processor.mOutputFile) << "Params: " << processor.toString(params.commandLine);
+			vector<uint8_t> outData;
+			EXPECT_NO_THROW((outData = processor.readOutputFile())) << "Exception on read";
+			int64_t index = 0;
+			int64_t invalid_index = (size_t)-1;
+			string cmpmsg;
+			EXPECT_EQ(invalid_index, (index = cmpVector(params.expectedData, outData, cmpmsg))) << "Params: " << processor.toString(params.commandLine) << "\n" << cmpmsg;
+			EXPECT_EQ(invalid_index, index);
+		}
 	}
 }
