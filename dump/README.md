@@ -3,6 +3,8 @@
 Dump is a tool wich can be used to process files in various ways. The simplest usage is to copy a file.
 Since **dump** can copy files from and to archives this is one possible usage.
 
+Because of it's powerfull options it can also be used to generate listings for various languages like assembler, C, Java, BASIC, etc..
+
 One important thing to note is that the output file must always come before the inputfile. The commands can usually be abbreviated, so use the help for more details. If no output file is specified, the output goes to the console.
 
 In general the commands are given with '--longoption' or '-shortoption'.
