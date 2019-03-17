@@ -9,4 +9,4 @@ Creates the charmappings for cc65 assembler and compiler to convert PETSCII to s
 
 ### *Dump Tool*  
   
-A handy tool can to merge or extract data from files or convert them to different format like a hexdump or basic listing. See the project readme for more details.
+A handy tool can to merge or extract data from files or convert them to different format like a hexdump or basic listing (or other languanges like C, Java, etc.). See the project readme for more details.
