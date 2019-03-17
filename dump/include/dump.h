@@ -25,7 +25,7 @@ T fromNumber(const char *number, const char *end, const char **scanned)
 	if (len == 1)
 		return toolslib::strings::fromDecimal<T>(number, end, scanned);
 
-	char c = number[2];
+	char c = number[1];
 	if (len == 2 && (c == 'x' || c == 'X'))
 		throw invalid_argument("Empty hex std::string");
 
@@ -78,6 +78,7 @@ protected:
 	void writeData(const std::vector<std::string> &oArgs);
 	void dumpData(const std::vector<std::string> &oArgs);
 	void dumpHexdump(const std::vector<std::string> &oArgs);
+	void dumpBasic(const std::vector<std::string> &oArgs);
 
 	bool isNumber(const std::string &value) const;
 
@@ -94,7 +95,6 @@ protected:
 	 * 0x12 $13 'A' size=16 "WideCharString" size[=8] %0100 45 '\''
 	 */
 	std::vector<uint8_t> getVectorData(const std::vector<std::string> &oData, size_t index = 0) const;
-	void addVectorValue(std::vector<uint8_t> &values, uint64_t value, uint16_t size) const;
 	bool addVectorString(std::vector<uint8_t> &values, const std::string &value, uint16_t size) const;
 
 private:

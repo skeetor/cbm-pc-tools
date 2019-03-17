@@ -140,6 +140,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\dump.cpp" />
+    <ClCompile Include="..\formatter\BasicFormatter.cpp" />
+    <ClCompile Include="..\formatter\CBMFormatter.cpp" />
     <ClCompile Include="..\formatter\DataFormatter.cpp" />
     <ClCompile Include="..\formatter\EmptyFormatter.cpp" />
     <ClCompile Include="..\formatter\HexdumpFormatter.cpp" />

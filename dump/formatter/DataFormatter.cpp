@@ -26,14 +26,11 @@ namespace
 	}
 }
 
-DataFormatter::DataFormatter(ByteType type, uint16_t columns, const std::string &linePrefix, const std::string &header, const std::string &postfix, char columnPrefix)
+DataFormatter::DataFormatter(ByteType type, uint16_t columns, const std::string &linePrefix, char columnPrefix)
 : mType(type)
 , mColumns(columns)
 , mCurColumn(0)
 , mLinePrefix(linePrefix)
-, mHeader(header)
-, mPostfix(postfix)
-, mAddHeader(true)
 , mColumnPrefix(columnPrefix)
 {
 }
@@ -88,13 +85,7 @@ bool DataFormatter::format(const char *oData, int64_t nDataSize, IFile *oOutput)
 
 		if (mCurColumn == 0)
 		{
-			if (mAddHeader)
-			{
-				mAddHeader = false;
-				mBuffer = mHeader;
-			}
-
-			if (!writeBuffer(oOutput))
+			if (!mBuffer.empty() && !writeBuffer(oOutput))
 				return false;
 
 			mBuffer = getLinePrefix();
@@ -167,18 +158,22 @@ bool DataFormatter::createColumnValue(const char *oData, const char *oEnd, std::
 bool DataFormatter::init(void)
 {
 	mCurColumn = 0;
-	mAddHeader = true;
 
 	return true;
 }
 
 bool DataFormatter::finalize(IFile *oOutput)
 {
-	mBuffer += mPostfix;
-	return writeBuffer(oOutput);
+	if(!mBuffer.empty())
+		return writeBuffer(oOutput);
+
+	return true;
 }
 
 bool DataFormatter::flush(IFile *oOutput)
 {
-	return writeBuffer(oOutput);
+	if (!mBuffer.empty())
+		return writeBuffer(oOutput);
+
+	return true;
 }

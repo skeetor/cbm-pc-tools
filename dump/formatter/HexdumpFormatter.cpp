@@ -10,7 +10,7 @@ using namespace toolslib;
 using namespace toolslib::files;
 
  HexdumpFormatter::HexdumpFormatter(DataFormatter::ByteType type, uint16_t columns, uint16_t nAdressSize, CharMode nCharMode)
-: DataFormatter(type, columns, "", "", "", 0)
+: DataFormatter(type, columns, "", 0)
 , mAddress(0)
 , mAddressSize(nAdressSize)
 , mCharMode(nCharMode)
@@ -30,7 +30,7 @@ std::string HexdumpFormatter::getLinePrefix(void) const
 	string address;
 	address.resize(24);
 	address[0] = 0;
-	int64_t len = 0;
+	size_t len = 0;
 
 	switch (mAddressSize)
 	{

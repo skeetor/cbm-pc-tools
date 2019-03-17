@@ -40,6 +40,12 @@
     <ClCompile Include="formatter\HexdumpFormatter.cpp">
       <Filter>Source Files\formatter</Filter>
     </ClCompile>
+    <ClCompile Include="formatter\BasicFormatter.cpp">
+      <Filter>Source Files\formatter</Filter>
+    </ClCompile>
+    <ClCompile Include="formatter\CBMFormatter.cpp">
+      <Filter>Source Files\formatter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\formatter\EmptyFormatter.h">
@@ -55,6 +61,12 @@
       <Filter>Header Files\formatter</Filter>
     </ClInclude>
     <ClInclude Include="include\formatter\HexdumpFormatter.h">
+      <Filter>Header Files\formatter</Filter>
+    </ClInclude>
+    <ClInclude Include="include\formatter\BasicFormatter.h">
+      <Filter>Header Files\formatter</Filter>
+    </ClInclude>
+    <ClInclude Include="include\formatter\CBMFormatter.h">
       <Filter>Header Files\formatter</Filter>
     </ClInclude>
   </ItemGroup>

@@ -52,7 +52,7 @@ namespace
 		EXPECT_TRUE(success);
 		EXPECT_EQ(expected.length(), (size_t)m_file.length());
 
-		written.resize(m_file.length());
+		written.resize((size_t)m_file.length());
 		EXPECT_EQ(0, m_file.seek(0, IFile::set));
 		EXPECT_EQ(expected.size(), (size_t)m_file.read(&written[0], written.size()));
 		EXPECT_EQ(expected, written);
@@ -74,7 +74,7 @@ namespace
 		EXPECT_TRUE(success);
 		EXPECT_EQ(expected.length(), (size_t)m_file.length());
 
-		written.resize(m_file.length());
+		written.resize((size_t)m_file.length());
 		EXPECT_EQ(0, m_file.seek(0, IFile::set));
 		EXPECT_EQ(expected.size(), (size_t)m_file.read(&written[0], written.size()));
 		EXPECT_EQ(expected, written);
@@ -107,7 +107,7 @@ namespace
 
 		EXPECT_EQ(expected.length(), (size_t)m_file.length());
 
-		written.resize(m_file.length());
+		written.resize((size_t)m_file.length());
 		EXPECT_EQ(0, m_file.seek(0, IFile::set));
 		EXPECT_EQ(expected.size(), (size_t)m_file.read(&written[0], written.size()));
 		EXPECT_EQ(expected, written);
@@ -143,7 +143,7 @@ namespace
 
 		EXPECT_EQ(expected.length(), (size_t)m_file.length());
 
-		written.resize(m_file.length());
+		written.resize((size_t)m_file.length());
 		EXPECT_EQ(0, m_file.seek(0, IFile::set));
 		EXPECT_EQ(expected.size(), (size_t)m_file.read(&written[0], written.size()));
 		EXPECT_EQ(expected, written);

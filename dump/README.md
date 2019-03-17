@@ -134,27 +134,31 @@ Simple hex dump
 ```dump -o mergedfile.txt -d 16 hex "" "" -i myfile1.txt```  
 <br>
 <br>
-**hexdump** Dumps a hexdump with address and ASCII part. The adress and the ASCII can be
-removed, which would be the same as the above example.  
-You can specify the columns and also the adresswidth.
-* ascii (default is ansii)
-  * ascii=off No characters
-  * ascii=screen Input values are converted form C64 screen characters (not yet implemented)
-  * ascii=petsci Converted from PETSCII charset
-
-format
-* 
-<br>
-<br>
+**basic** Dumps as a BASIC listing, either as a ANSI file or as CBM basic file which can be directly 
+used in a i.e. C64 (and maybe others)  
+You can specify the columns which has to be the first parameter.
+* type
+  * ansi (default) lists as a BASIC file
+  * cbm binary file which can be loaded directly as a C64 (or maybe others) program
+* linenumber=N specifies the line number to start with (default = 1000)  
+* stepping=N specifies the increase of the line number (default is 10)
+* address=N specifies the start address of the basic program. This is only available
+ for the cbm type adn means the load address (default is 0x0801).
+  
+  
 **Example:**  
-Default hexdump with 16 columns to console
-```dump -x -i myfile1.txt```  
+
+Default basic with 16 columns to console
+```dump -b -i myfile1.txt```  
 <br>
-Hexdump with 16 columns and 32 bit adress columns to console
-```dump -x 16 32 -i myfile1.txt```  
+Basic listing with 10 columns per line and linenumber 100
+```dump -b 10 linenumber=100 -i myfile1.txt```  
 
-Hexdump with 8 columns without characters
-```dump -o hexdump.txt -x 8 ascii=off -i myfile1.txt```  
+CBM Basic with 10 columns per line and linenumber 100
+```dump -b 10 type=cbm linenumber=100 -i myfile1.txt```  
 
-Hexdump with 8 columns without adress (adresswidth = 0)
-```dump -o hexdump.txt -x 8 0 -i myfile1.txt```  
+CBM Basic with with a different load address. Note that the load address 
+must be specified after the type parameter.
+```dump -b type=cbm address=$c000 -i myfile1.txt```  
+```dump -b type=cbm address=0xc000 -i myfile1.txt```  
+```dump -b type=cbm address=0c000h -i myfile1.txt```  
