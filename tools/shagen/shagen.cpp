@@ -66,8 +66,8 @@ static void help(void)
 		<< "--count N (default = 1000000)\n"
 		<< "--interval <timestamp|YYYY.MM.DD HH:MI:SS> <timestamp|YYYY.MM.DD HH:MI:SS>\n"
 		<< "--timeformat <FormatString> (default is UNIX time in ms)\n"
-		<< "--hashfile <filename> read a file containing hashes, instead of randomly generating them.\n"
-		<< "--nototal If count is specified with hashfile then <nototal> will takne N records from each file\n"
+		<< "--file <filename> read a file containing hashes, instead of randomly generating them.\n"
+		<< "--nototal If count is specified with file then <nototal> will takne N records from each file\n"
 		<< "\tinstead of a total of N records.\n"
 		<< "--split <string> <position>\n"
 		<< "--out string (default is '<HASH>')\n"
@@ -343,11 +343,11 @@ int main(int argc, char *argv[])
 		timeFormat = params[0];
 	}
 
-	if (FindParam(argc, argv, "hashfile", hashFiles) != -1)
+	if (FindParam(argc, argv, "file", hashFiles) != -1)
 	{
 		if (hashFiles.size() < 1)
 		{
-			cerr << "--hashfile requires at least one path or 'stdin'" << endl;
+			cerr << "--file requires at least one path or 'stdin'" << endl;
 			return 10;
 		}
 
