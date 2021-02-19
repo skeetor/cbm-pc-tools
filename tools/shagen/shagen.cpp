@@ -62,11 +62,14 @@ static void help(void)
 {
 	cout 
 		<< "USAGE:\n"
-		<< "--hashLength N (default = 64)\n"
+		<< "--length N (default = 64)\n"
 		<< "--count N (default = 1000000)\n"
 		<< "--interval <timestamp|YYYY.MM.DD HH:MI:SS> <timestamp|YYYY.MM.DD HH:MI:SS>\n"
 		<< "--timeformat <FormatString> (default is UNIX time in ms)\n"
 		<< "--hashfile <filename> read a file containing hashes, instead of randomly generating them.\n"
+		<< "--nototal If count is specified with hashfile then <nototal> will takne N records from each file\n"
+		<< "\tinstead of a total of N records.\n"
+		<< "--split <string> <position>\n"
 		<< "--out string (default is '<HASH>')\n"
 		<< "\tThis may contain the following template values:\n"
 		<< "\t'<HASH>' Put a random hashvalue\n"
@@ -75,6 +78,22 @@ static void help(void)
 	<< endl;
 }
 
+static vector<string> split(const string& s, string delimiter)
+{
+	size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+	string token;
+	vector<string> res;
+
+	while ((pos_end = s.find(delimiter, pos_start)) != string::npos)
+	{
+		token = s.substr(pos_start, pos_end - pos_start);
+		pos_start = pos_end + delim_len;
+		res.push_back(token);
+	}
+
+	res.push_back(s.substr(pos_start));
+	return res;
+}
 static string sreplace(string subject, const string& search, const string& replace)
 {
 	size_t pos = 0;
@@ -252,13 +271,16 @@ int main(int argc, char *argv[])
 	size_t count = 1000000;
 	string outParam;
 	string timeFormat;
-	string hashFile;
+	vector<string> hashFiles;
 	char *e;
 	size_t intervalStart = -1;
 	size_t intervalEnd = -1;
 	unique_ptr<istream> fileStream;
 	istream* strm = nullptr;
-	filebuf fb;
+	bool fromFile = false;
+	bool total = true;
+	string pattern;
+	size_t patternField = 0;
 
 	vector<string> params;
 	if (FindParam(argc, argv, "help", params) != -1 || FindParam(argc, argv, "h", params) != -1)
@@ -267,26 +289,15 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	if (FindParam(argc, argv, "hashLength", params) != -1)
+	if (FindParam(argc, argv, "length", params) != -1)
 	{
 		if (params.size() != 1)
 		{
-			cerr << "--hashLength requires a numeric value" << endl;
+			cerr << "--length requires a numeric value" << endl;
 			return 10;
 		}
 
 		hashLen = strtol(params[0].c_str(), &e, 10);
-	}
-
-	if (FindParam(argc, argv, "count", params) != -1)
-	{
-		if (params.size() != 1)
-		{
-			cerr << "--count requires a numeric value" << endl;
-			return 10;
-		}
-
-		count = strtol(params[0].c_str(), &e, 10);
 	}
 
 	if (FindParam(argc, argv, "out", params) != -1)
@@ -332,45 +343,103 @@ int main(int argc, char *argv[])
 		timeFormat = params[0];
 	}
 
-	if (FindParam(argc, argv, "hashfile", params) != -1)
+	if (FindParam(argc, argv, "hashfile", hashFiles) != -1)
 	{
-		if (params.size() != 1)
+		if (hashFiles.size() < 1)
 		{
-			cerr << "--hashfile a path or 'stdin'" << endl;
+			cerr << "--hashfile requires at least one path or 'stdin'" << endl;
 			return 10;
 		}
 
-		hashFile = params[0];
-		if (hashFile == "stdin)")
-			strm = &cin;
-		else
-		{
-			if (!fb.open(hashFile, ios::in))
-			{
-				cerr << "Unable to open " << hashFile << endl;
-				return 10;
-			}
+		count = 0;
+		fromFile = true;
+	}
 
-			fileStream = make_unique<istream>(&fb);
-			strm = fileStream.get();
-			count = 0;
+	if (FindParam(argc, argv, "count", params) != -1)
+	{
+		if (params.size() != 1)
+		{
+			cerr << "--count requires a numeric value" << endl;
+			return 10;
 		}
+
+		count = strtol(params[0].c_str(), &e, 10);
+	}
+
+	if (FindParam(argc, argv, "nototal", params) != -1)
+	{
+		total = false;
+	}
+
+	if (FindParam(argc, argv, "split", params) != -1)
+	{
+		if (params.size() != 2)
+		{
+			cerr << "--split requires a string and a position" << endl;
+			return 10;
+		}
+
+		pattern = params[0];
+		patternField = strtol(params[1].c_str(), &e, 10);
 	}
 
 	size_t i = 0;
+	size_t record = 0;
+	filebuf fb;
 
 	// Either produce hashes until the max count is reached, or the end of the inputfile.
-	while (i < count || (count == 0 && !hashFile.empty()))
+	while (i < count || fromFile)
 	{
 		string hash;
 
-		if (hashFile.empty())
+		if (!fromFile)
 			hash = createRandomString(hashLen, hex);
 		else
 		{
-			getline(*strm, hash);
-			if (!strm->good())
-				break;
+			if (strm)
+				getline(*strm, hash);
+
+			if (!strm || !strm->good() || i >= count)
+			{
+				if (hashFiles.empty())
+					break;
+
+				string hashFile = hashFiles[0];
+				hashFiles.erase(hashFiles.begin());
+
+				if (hashFile == "stdin)")
+					strm = &cin;
+				else
+				{
+					fb.close();
+
+					if (!fb.open(hashFile, ios::in))
+					{
+						cerr << "Unable to open " << hashFile << endl;
+						return 10;
+					}
+
+					fileStream = make_unique<istream>(&fb);
+					strm = fileStream.get();
+					getline(*strm, hash);
+				}
+
+				// If we want to take N records from each file, we have to reset the record counter.
+				if (!total)
+					i = 0;
+			}
+		}
+
+		if (!pattern.empty())
+		{
+			vector<string> fields = split(hash, pattern);
+			if (patternField >= fields.size())
+			{
+				cerr << hash << " doesn't contain the splitpattern " << pattern  << endl;
+				continue;
+			}
+
+			hash = fields[patternField];
 		}
 
 		string out = outParam;
@@ -392,11 +461,10 @@ int main(int argc, char *argv[])
 				<< " End:" << epochToString(intervalEnd)
 				<< " Timestamp:" << epochToString(timestamp)
 			<< endl;*/
-
 		}
 
 		out = sreplace(out, hashStr, hash);
-		out = sreplace(out, lineStr, to_string(i));
+		out = sreplace(out, lineStr, to_string(++record));
 
 		cout << out << endl;
 
