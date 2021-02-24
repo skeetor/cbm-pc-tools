@@ -1,5 +1,7 @@
 #ifdef _WIN32
 #include "pch.h"
+#include <windows.h>
+#define usleep(ms) Sleep((DWORD)ms)
 #endif
 
 #include <iostream>
@@ -75,7 +77,8 @@ static void help(void)
 		<< "\t'<HASH>' Put a random hashvalue\n"
 		<< "\t'<TIMESTAMP>' If an intervall is given, then the string is replaced with a randomized timestamp.\n"
 		<< "\t'<RECORD>' Print the recordnumber\n"
-	<< endl;
+		<< "--sleep <ms> <records> delay for N milliseconds after X records have been generated.\n"
+		<< endl;
 }
 
 static vector<string> split(const string& s, string delimiter)
@@ -383,8 +386,24 @@ int main(int argc, char *argv[])
 		patternField = strtol(params[1].c_str(), &e, 10);
 	}
 
+	uint32_t recordDelay = 0;			// Sleep in ms
+	size_t recordDelayCount = 0;	// limit between sleeps
+
+	if (FindParam(argc, argv, "sleep", params) != -1)
+	{
+		if (params.size() != 2)
+		{
+			cerr << "--split requires a string and a position" << endl;
+			return 10;
+		}
+
+		recordDelay = strtoul(params[0].c_str(), &e, 10);
+		recordDelayCount = strtoul(params[1].c_str(), &e, 10);
+	}
+
 	size_t i = 0;
 	size_t record = 0;
+	size_t recordCnt = 0;
 	filebuf fb;
 
 	// Either produce hashes until the max count is reached, or the end of the inputfile.
@@ -468,6 +487,15 @@ int main(int argc, char *argv[])
 
 		cout << out << endl;
 
+		recordCnt++;
+		if (recordDelay)
+		{
+			if (recordCnt >= recordDelayCount)
+			{
+				usleep(recordDelay);
+				recordCnt = 0;
+			}
+		}
 		i++;
 	}
 
