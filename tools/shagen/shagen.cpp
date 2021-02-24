@@ -2,6 +2,8 @@
 #include "pch.h"
 #include <windows.h>
 #define usleep(ms) Sleep((DWORD)ms)
+#else
+#include <unistd.h>
 #endif
 
 #include <iostream>
