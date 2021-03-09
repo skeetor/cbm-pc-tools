@@ -2,8 +2,10 @@
 #include "pch.h"
 #include <windows.h>
 #define usleep(ms) Sleep((DWORD)ms)
+#define SLEEP_MULT 1
 #else
 #include <unistd.h>
+#define SLEEP_MULT 1000
 #endif
 
 #include <iostream>
@@ -19,6 +21,7 @@
 
 #include <ctime>
 #include <time.h>
+#include <chrono>
 
 #ifdef _WIN32
 #define timegm _mkgmtime
@@ -79,7 +82,7 @@ static void help(void)
 		<< "\t'<HASH>' Put a random hashvalue\n"
 		<< "\t'<TIMESTAMP>' If an intervall is given, then the string is replaced with a randomized timestamp.\n"
 		<< "\t'<RECORD>' Print the recordnumber\n"
-		<< "--sleep <ms> <records> delay for N milliseconds after X records have been generated.\n"
+		<< "--sleep <ms> <records> Generate N records per timeintervall. (If N takes longer than <ms>, no delay is done.\n"
 		<< endl;
 }
 
@@ -388,7 +391,7 @@ int main(int argc, char *argv[])
 		patternField = strtol(params[1].c_str(), &e, 10);
 	}
 
-	uint32_t recordDelay = 0;			// Sleep in ms
+	size_t recordDelay = 0;			// Sleep in ms
 	size_t recordDelayCount = 0;	// limit between sleeps
 
 	if (FindParam(argc, argv, "sleep", params) != -1)
@@ -407,6 +410,8 @@ int main(int argc, char *argv[])
 	size_t record = 0;
 	size_t recordCnt = 0;
 	filebuf fb;
+
+	chrono::milliseconds elapsed = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch());
 
 	// Either produce hashes until the max count is reached, or the end of the inputfile.
 	while (i < count || fromFile)
@@ -494,8 +499,18 @@ int main(int argc, char *argv[])
 		{
 			if (recordCnt >= recordDelayCount)
 			{
-				usleep(recordDelay);
+				size_t duration = (chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()) - elapsed).count();
+				size_t delay = 0;
+				if (duration < recordDelay)
+					delay = recordDelay - duration;
+
+				cout << "Sleeping: " << delay << " Duration: " << duration << " Delay: " << recordDelay << " Records: " << recordDelayCount << endl;
+				if (duration < recordDelay)
+					usleep(delay*SLEEP_MULT);
+
+
 				recordCnt = 0;
+				elapsed = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch());
 			}
 		}
 		i++;
